@@ -8,3 +8,9 @@ steps:
   image: node:lts-alpine
   commands:
   - npm ci && npx tsc
+
+---
+kind: signature
+hmac: bdb48cc4b12b82dd00fd38cf860fa971f36105edd6549eceaa22ceef1d8e2ef5
+
+...
