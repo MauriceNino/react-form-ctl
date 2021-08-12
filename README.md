@@ -50,9 +50,11 @@ type State = {
             // properties are described down below
         }
     };
-	updateData: (value: FormData) => void; // Update the whole form state at once
+    value: FormData; // Get the input data as an object
+	setValue: (value: FormData) => void; // Update the whole form state at once
 
     valid: boolean; // If the form passed all Validators
+    invalid: boolean; // The opposite of the above
     dirty: boolean; // If the form data was updated once
 }
 ```
@@ -65,6 +67,7 @@ type FieldState = {
     setValue: (value: FieldType) => void; // Callback to set the value of the field
 
     valid: boolean; // If the value passes all Validators
+    invalid: boolean; // The opposite of the above
     dirty: boolean; // If the value was updated once
 
     error?: { 

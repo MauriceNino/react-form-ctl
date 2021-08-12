@@ -12,15 +12,19 @@ export type FormCtlHookReturnType<T> = {
             setValue: (value: T[key]) => void;
 
             valid: boolean;
+            invalid: boolean;
             dirty: boolean;
 
             error?: ErrorType;
             errors?: ErrorsMapType;
         };
     };
-	updateData: (value: T) => void;
+
+    value: T;
+	setValue: (value: T) => void;
 
     valid: boolean;
+    invalid: boolean;
     dirty: boolean;
 };
 
@@ -39,19 +43,22 @@ export const useFormCtl = <T>(
     const [state, setState] = useState<InternalState<T>>(internalState);
     
     // Map internal state to output state
-    const output = getOutputState(input, state, setState);
+    const output = getDetailedFormData(input, state, setState);
     const {valid, dirty} = getGlobalState(output);
+    const formData = getGlobalFormData(state);
 
     // Function for updating the whole form at once
-    const updateData = (value: T) => {
+    const setValue = (value: T) => {
         setState(() => getInternalStateFromFormData(value));
     }
 
     return {
         data: output,
-        updateData: updateData,
+        value: formData,
+        setValue: setValue,
 
-        valid: valid, 
+        valid: valid,
+        invalid: !valid,
         dirty: dirty
     }
 };
@@ -59,7 +66,11 @@ export const useFormCtl = <T>(
 const getGlobalState = <T>(
     output: FormCtlHookReturnType<T>['data']
 ) => {
-    const outValues = Object.values(output) as {valid: boolean; dirty: boolean}[];
+    const outValues = [];
+
+    for(let key in output) {
+        outValues.push(output[key]);
+    }
 
     return {
         valid: outValues.every(({valid}) => valid),
@@ -67,7 +78,7 @@ const getGlobalState = <T>(
     }
 }
 
-const getOutputState = <T>(
+const getDetailedFormData = <T>(
     input: FormCtlHookInputType<T>,
     state: InternalState<T>,
     setState: (updateFunc: (value: InternalState<T>) => InternalState<T>) => void,
@@ -77,7 +88,7 @@ const getOutputState = <T>(
         const [,validators] = input[key];
         const {value, dirty} = state[key];
 
-        const {errors, errorsMap, hasErrors} = getErrorProps(value, dirty, validators);
+        const {errors, errorsMap, hasErrors} = getErrorProps(value, validators);
         
         const updateValue = (value: any) => {
             setState(oldState => ({
@@ -89,17 +100,17 @@ const getOutputState = <T>(
             }));
         }
 
-        //@ts-ignore
         output[key] = {
             value,
             setValue: updateValue,
 
             valid: !hasErrors,
+            invalid: hasErrors,
             dirty: dirty,
 
             error: hasErrors ? errors[0] : undefined,
             errors: hasErrors ? errorsMap : undefined,
-        }
+        };
     }
 
     return output;
@@ -107,7 +118,6 @@ const getOutputState = <T>(
 
 const getErrorProps = (
     value: any,
-    dirty: boolean,
     validators: ValidatorType[] | undefined,
 ): {
     errors: ErrorType[],
@@ -124,7 +134,7 @@ const getErrorProps = (
         return acc;
     }, {} as ErrorsMapType);
 
-    const hasErrors = dirty && errors.length !== 0;
+    const hasErrors = errors.length !== 0;
 
     return {errors, errorsMap, hasErrors};
 }
@@ -157,4 +167,16 @@ const getInternalStateFromFormData = <T>(input: T): InternalState<T> => {
     }
 
     return internalState;
+}
+
+const getGlobalFormData = <T>(input: InternalState<T>): T => {
+    let formData: T = {} as any;
+
+    for (let key in input) {
+        const value = input[key];
+
+        formData[key] = value.value;
+    }
+
+    return formData;
 }
