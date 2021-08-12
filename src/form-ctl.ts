@@ -40,20 +40,19 @@ export const useFormCtl = <T>(
     
     // Map internal state to output state
     const output = getOutputState(input, state, setState);
+    const {valid, dirty} = getGlobalState(output);
 
     // Function for updating the whole form at once
     const updateData = (value: T) => {
         setState(() => getInternalStateFromFormData(value));
     }
 
-    const {valid, dirty} = getGlobalState(output);
-
     return {
         data: output,
         updateData: updateData,
 
-        valid, 
-        dirty
+        valid: valid, 
+        dirty: dirty
     }
 };
 
