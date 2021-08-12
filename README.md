@@ -133,11 +133,16 @@ return <>
 
 ## Validators
 
-There are a number of Validators already included, which are the following:
+There are a number of Validators already included:
 
 - required
+- requiredTrue
 - minLength
 - maxLength
+- min
+- max
+- pattern
+- regex (=> alias for pattern)
 
 You can also implement your own validators and pass them to the Validators array:
 

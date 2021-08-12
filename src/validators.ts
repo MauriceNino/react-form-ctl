@@ -11,8 +11,22 @@ export type ValidatorType = (
 ) => ErrorType | null;
 
 const requiredValidator: ValidatorType = (value: any) => {
-	if (value === null || value === '' || value === true) {
-		return {name: 'required'};
+	if (value === null || value === '' || value === false) {
+		return {
+			name: 'required',
+			got: value
+		};
+	}
+
+	return null;
+};
+
+const requiredTrueValidator: ValidatorType = (value: any) => {
+	if (value !== true) {
+		return {
+			name: 'requiredTrue',
+			got: value
+		};
 	}
 
 	return null;
@@ -20,11 +34,13 @@ const requiredValidator: ValidatorType = (value: any) => {
 
 export const Validators = {
 	required: requiredValidator,
+	requiredTrue: requiredTrueValidator,
 	minLength: (length: number): ValidatorType => {
 		return (value: string) => {
 			if (value.length < length) {
 				return {
 					name: 'minLength',
+                    got: value,
                     length: value.length,
 					expectedLength: length
 				};
@@ -38,6 +54,7 @@ export const Validators = {
 			if (value.length > length) {
 				return {
 					name: 'maxLength',
+                    got: value,
                     length: value.length,
 					expectedLength: length
 				};
@@ -46,6 +63,45 @@ export const Validators = {
 			return null;
 		};
 	},
+	min: (min: number): ValidatorType => {
+		return (value: number) => {
+			if (value < min) {
+				return {
+					name: 'min',
+                    got: value,
+					expected: min
+				};
+			}
+
+			return null;
+		};
+	},
+	max: (max: number): ValidatorType => {
+		return (value: number) => {
+			if (value > max) {
+				return {
+					name: 'max',
+                    got: value,
+					expected: max
+				};
+			}
+
+			return null;
+		};
+	},
+	pattern: (pattern: RegExp): ValidatorType => {
+		return (value: string) => {
+			if (pattern.test(value)) {
+				return {
+					name: 'pattern',
+                    got: value
+				};
+			}
+
+			return null;
+		};
+	},
+	regex: function(pattern: RegExp) {return this.pattern(pattern)},
 };
 
 export type ErrorMappingsType = {
