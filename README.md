@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/react-form-ctl.svg)](https://badge.fury.io/js/react-form-ctl)
+[![Build Status](https://drone.mauz.io/api/badges/MauriceNino/react-form-ctl/status.svg)](https://drone.mauz.io/MauriceNino/react-form-ctl)
 
 # React Form Ctl
 

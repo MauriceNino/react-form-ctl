@@ -1,0 +1,10 @@
+---
+kind: pipeline
+type: docker
+name: test
+
+steps:
+- name: build-local
+  image: node:lts-alpine
+  commands:
+  - npm ci && npx tsc
