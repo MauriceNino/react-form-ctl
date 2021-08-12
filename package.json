@@ -1,0 +1,32 @@
+{
+  "name": "react-form-ctl",
+  "version": "1.0.0",
+  "description": "A way of validating forms, inspired by Angular's FormControl",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MauriceNino/react-form-ctl.git"
+  },
+  "keywords": [
+    "react",
+    "forms",
+    "validation"
+  ],
+  "author": "Maurice el-Banna",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MauriceNino/react-form-ctl/issues"
+  },
+  "homepage": "https://github.com/MauriceNino/react-form-ctl#readme",
+  "dependencies": {
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.17",
+    "typescript": "^4.3.5"
+  }
+}
