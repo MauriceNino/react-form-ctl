@@ -19,6 +19,9 @@ export type FormCtlHookReturnType<T> = {
         };
     };
 	updateData: (value: T) => void;
+
+    valid: boolean;
+    dirty: boolean;
 };
 
 type InternalState<T> = {
@@ -43,11 +46,27 @@ export const useFormCtl = <T>(
         setState(() => getInternalStateFromFormData(value));
     }
 
+    const {valid, dirty} = getGlobalState(output);
+
     return {
         data: output,
-        updateData: updateData
+        updateData: updateData,
+
+        valid, 
+        dirty
     }
 };
+
+const getGlobalState = <T>(
+    output: FormCtlHookReturnType<T>['data']
+) => {
+    const outValues = Object.values(output) as {valid: boolean; dirty: boolean}[];
+
+    return {
+        valid: outValues.every(({valid}) => valid),
+        dirty: outValues.some(({dirty}) => dirty)
+    }
+}
 
 const getOutputState = <T>(
     input: FormCtlHookInputType<T>,
