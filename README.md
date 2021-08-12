@@ -36,6 +36,49 @@ const FormComponent = () => {
 }
 ```
 
+## Data structure
+
+You will get back an object containing information about the general state of the form and also a more detailed information about each form field:
+
+```tsx
+type State = {
+	data: {
+        [FieldName: string]: { // For each passed field, you get an entry 
+                               // in this object with detailed information about it
+
+            // properties are described down below
+        }
+    };
+	updateData: (value: FormData) => void; // Update the whole form state at once
+
+    valid: boolean; // If the form passed all Validators
+    dirty: boolean; // If the form data was updated once
+}
+```
+
+For each passed field, you will get back the following:
+
+```tsx
+type FieldState = {
+    value: FieldType; // The value of the field
+    setValue: (value: FieldType) => void; // Callback to set the value of the field
+
+    valid: boolean; // If the value passes all Validators
+    dirty: boolean; // If the value was updated once
+
+    error?: { 
+        name: string; // name of the error (e.g. 'required')
+        // more custom error properties
+    };
+    errors?: {
+        [ErrorName: string]: { // the property name is the name of the error (e.g. required)
+            name: string; // name of the error (e.g. 'required')
+            // more custom error properties
+        }
+    };
+}
+```
+
 ## Error Handling
 
 In case you want to write a more specific error message for different errors, it is recommended to supply a Map with your error messages like in the following example. Note that this will only be applied to the first error supplied by the first failing Validator.
