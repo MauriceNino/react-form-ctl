@@ -1,6 +1,6 @@
 {
   "name": "react-form-ctl",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "A way of validating forms, inspired by Angular's FormControl",
   "main": "dist/index.js",
   "scripts": {
@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/MauriceNino/react-form-ctl#readme",
   "dependencies": {
-    "react": "^17.0.2"
+    "react": "*"
   },
   "devDependencies": {
-    "@types/react": "^17.0.17",
+    "@types/react": "*",
     "typescript": "^4.3.5"
   }
 }
