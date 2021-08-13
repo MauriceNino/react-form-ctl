@@ -1,7 +1,7 @@
-export { useFormCtl } from "./form-ctl";
+export { useFormCtl } from './form-ctl';
 export {
-  Validators,
-  extError,
-  ErrorMappingsType,
-  ValidatorType,
-} from "./validators";
+	Validators,
+	extError,
+	ErrorMappingsType,
+	ValidatorType,
+} from './validators';
