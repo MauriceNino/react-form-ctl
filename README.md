@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/react-form-ctl.svg)](https://badge.fury.io/js/react-form-ctl)
+[![Build Status](https://drone.mauz.io/api/badges/MauriceNino/react-form-ctl/status.svg)](https://drone.mauz.io/MauriceNino/react-form-ctl)
 
 # React Form Ctl
 
@@ -49,9 +50,11 @@ type State = {
             // properties are described down below
         }
     };
-	updateData: (value: FormData) => void; // Update the whole form state at once
+    value: FormData; // Get the input data as an object
+	setValue: (value: FormData) => void; // Update the whole form state at once
 
     valid: boolean; // If the form passed all Validators
+    invalid: boolean; // The opposite of the above
     dirty: boolean; // If the form data was updated once
 }
 ```
@@ -64,6 +67,7 @@ type FieldState = {
     setValue: (value: FieldType) => void; // Callback to set the value of the field
 
     valid: boolean; // If the value passes all Validators
+    invalid: boolean; // The opposite of the above
     dirty: boolean; // If the value was updated once
 
     error?: { 
@@ -99,7 +103,7 @@ const errorMap: ErrorMappingsType = {
 return <>
     {/* input field */}
 
-    { !data.name.valid && <div>
+    { data.name.invalid && <div>
         {extError(errorMap, data.name.error)}
     </div>}
 </>
@@ -118,10 +122,10 @@ const {data} = useFormCtl<FormData>({
 return <>
     {/* input field */}
 
-    { data.name.errors.required && <div>
+    { data.name.errors?.required && <div>
         Field is required
     </div>}
-    { data.name.errors.minLength && <div>
+    { data.name.errors?.minLength && <div>
         Minimum Length: {data.name.errors.minLength.length}/{data.name.errors.minLength.expectedLength}
     </div>}
 </>
@@ -129,11 +133,16 @@ return <>
 
 ## Validators
 
-There are a number of Validators already included, which are the following:
+There are a number of Validators already included:
 
 - required
+- requiredTrue
 - minLength
 - maxLength
+- min
+- max
+- pattern
+- regex (=> alias for pattern)
 
 You can also implement your own validators and pass them to the Validators array:
 

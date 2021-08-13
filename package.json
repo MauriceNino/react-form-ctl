@@ -1,32 +1,51 @@
 {
-  "name": "react-form-ctl",
-  "version": "1.0.8",
-  "description": "A way of validating forms, inspired by Angular's FormControl",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MauriceNino/react-form-ctl.git"
-  },
-  "keywords": [
-    "react",
-    "forms",
-    "validation"
-  ],
-  "author": "Maurice el-Banna",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/MauriceNino/react-form-ctl/issues"
-  },
-  "homepage": "https://github.com/MauriceNino/react-form-ctl#readme",
-  "dependencies": {
-    "react": "*"
-  },
-  "devDependencies": {
-    "@types/react": "*",
-    "typescript": "^4.3.5"
-  }
+	"name": "react-form-ctl",
+	"version": "1.0.9",
+	"description": "A way of validating forms, inspired by Angular's FormControl",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"format": "prettier --write .",
+		"test": "prettier --check . && jest --coverage",
+		"prepublishOnly": "npm run test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MauriceNino/react-form-ctl.git"
+	},
+	"keywords": [
+		"react",
+		"forms",
+		"validation"
+	],
+	"author": "Maurice el-Banna",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/MauriceNino/react-form-ctl/issues"
+	},
+	"homepage": "https://github.com/MauriceNino/react-form-ctl#readme",
+	"dependencies": {
+		"react": "*"
+	},
+	"devDependencies": {
+		"@types/chai": "^4.2.21",
+		"@types/chai-enzyme": "^0.6.8",
+		"@types/enzyme": "^3.10.9",
+		"@types/enzyme-adapter-react-16": "^1.0.6",
+		"@types/jest": "^26.0.24",
+		"@types/react": "*",
+		"@types/rewire": "^2.5.28",
+		"babel-jest": "^27.0.6",
+		"chai": "^4.3.4",
+		"chai-enzyme": "^1.0.0-beta.1",
+		"enzyme": "^3.11.0",
+		"enzyme-adapter-react-16": "^1.15.6",
+		"jest": "^27.0.6",
+		"prettier": "2.3.2",
+		"react-dom": "^16.14.0",
+		"rewire": "^5.0.0",
+		"ts-jest": "^27.0.4",
+		"ts-node": "^10.2.0",
+		"typescript": "^4.3.5"
+	}
 }
