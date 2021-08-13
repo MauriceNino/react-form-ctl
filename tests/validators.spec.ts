@@ -5,6 +5,7 @@ import {
 	extError,
 	getErrorProps,
 	Validators,
+	ValidatorType,
 } from '../src/validators';
 
 describe('validators', () => {
@@ -107,6 +108,42 @@ describe('validators', () => {
 			expect(errors.hasErrors).to.be.false;
 			expect(errors.errors).to.deep.equal([]);
 			expect(errors.errorsMap).to.deep.equal({});
+		});
+
+		it('should work with custom validator', () => {
+			const isTest: ValidatorType = (value: string) => {
+				if (value !== 'TEST') {
+					return {
+						name: 'isTest',
+						got: value,
+					};
+				}
+				return null;
+			};
+
+			const errors = getErrorProps('TEST', [isTest]);
+			expect(errors.hasErrors).to.be.false;
+			const errors2 = getErrorProps('INVALID', [isTest]);
+			expect(errors2.hasErrors).to.be.true;
+		});
+
+		it('should work with custom parametrized validator', () => {
+			const is =
+				(isVal: string): ValidatorType =>
+				(value: string) => {
+					if (value !== isVal) {
+						return {
+							name: 'is',
+							got: value,
+						};
+					}
+					return null;
+				};
+
+			const errors = getErrorProps('TEST', [is('TEST')]);
+			expect(errors.hasErrors).to.be.false;
+			const errors2 = getErrorProps('INVALID', [is('TEST')]);
+			expect(errors2.hasErrors).to.be.true;
 		});
 
 		it('should get single error if one validator fails', () => {
