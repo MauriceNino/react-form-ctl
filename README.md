@@ -103,7 +103,7 @@ const errorMap: ErrorMappingsType = {
 return <>
     {/* input field */}
 
-    { !data.name.valid && <div>
+    { data.name.invalid && <div>
         {extError(errorMap, data.name.error)}
     </div>}
 </>
@@ -122,10 +122,10 @@ const {data} = useFormCtl<FormData>({
 return <>
     {/* input field */}
 
-    { data.name.errors.required && <div>
+    { data.name.errors?.required && <div>
         Field is required
     </div>}
-    { data.name.errors.minLength && <div>
+    { data.name.errors?.minLength && <div>
         Minimum Length: {data.name.errors.minLength.length}/{data.name.errors.minLength.expectedLength}
     </div>}
 </>

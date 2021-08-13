@@ -1,12 +1,13 @@
 {
 	"name": "react-form-ctl",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "A way of validating forms, inspired by Angular's FormControl",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc",
 		"format": "prettier --write .",
-		"test": "prettier --check . && jest --coverage"
+		"test": "prettier --check . && jest --coverage",
+		"prepublishOnly": "npm run test"
 	},
 	"repository": {
 		"type": "git",
