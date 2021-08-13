@@ -63,9 +63,9 @@ describe('form-ctl', () => {
 	describe('#getGlobalFormData', () => {
 		it('should get FormData from Basic internal state', () => {
 			const formData = getGlobalFormData({
-				name: { value: 'Maurice', dirty: false },
-				age: { value: 22, dirty: false },
-				isOldEnough: { value: true, dirty: false },
+				name: { value: 'Maurice', dirty: false, touched: false },
+				age: { value: 22, dirty: false, touched: false },
+				isOldEnough: { value: true, dirty: false, touched: false },
 			});
 
 			expect(formData).to.contain.all.keys('name', 'age', 'isOldEnough');
@@ -93,9 +93,9 @@ describe('form-ctl', () => {
 				isOldEnough: [true],
 			};
 			const internalState: InternalState<TestFormData> = {
-				name: { value: 'Maurice', dirty: false },
-				age: { value: 22, dirty: false },
-				isOldEnough: { value: true, dirty: false },
+				name: { value: 'Maurice', dirty: false, touched: false },
+				age: { value: 22, dirty: false, touched: false },
+				isOldEnough: { value: true, dirty: false, touched: false },
 			};
 
 			const detailedFormData = getDetailedFormData(

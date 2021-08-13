@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { ErrorType, getErrorProps, Validators } from '../src/validators';
+import {
+	ErrorMappingsType,
+	ErrorType,
+	extError,
+	getErrorProps,
+	Validators,
+} from '../src/validators';
 
 describe('validators', () => {
 	describe('.Validators', () => {
@@ -145,6 +151,30 @@ describe('validators', () => {
 				required: expectedErrorReq,
 				minLength: expectedErrorMinLen,
 			});
+		});
+	});
+
+	describe('#extError', () => {
+		it('should get error text when error appears', () => {
+			const errors = getErrorProps('', [Validators.required]);
+			const errorMap: ErrorMappingsType = {
+				required: () => 'req',
+			};
+
+			const errorText = extError(errorMap, errors.errors[0]);
+
+			expect(errorText).to.equal('req');
+		});
+
+		it('should get empty text when no error appears', () => {
+			const errors = getErrorProps('TEST', [Validators.required]);
+			const errorMap: ErrorMappingsType = {
+				required: () => 'req',
+			};
+
+			const errorText = extError(errorMap, errors.errors[0]);
+
+			expect(errorText).to.equal('');
 		});
 	});
 });
