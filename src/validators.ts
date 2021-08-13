@@ -109,10 +109,10 @@ export const Validators = {
 };
 
 export type ErrorMappingsType = {
-  [key in CommonErrorTypes | string]: (error: ErrorType) => void;
+  [key in CommonErrorTypes | string]: (error: ErrorType) => string;
 };
 
-export const extError = (map: ErrorMappingsType, error: ErrorType) => {
+export const extError = (map: ErrorMappingsType, error: ErrorType | undefined): string => {
   if (!error) {
     return "";
   }
