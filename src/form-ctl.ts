@@ -10,6 +10,24 @@ export type FormCtlHookInputType<T> = {
 	[key in keyof T]: [T[key], ValidatorType[]?];
 };
 
+export type ReactInputPropsType<T> = {
+	value: T;
+	onChange: React.ChangeEventHandler<HTMLInputElement>;
+	onBlur: React.FocusEventHandler<HTMLInputElement>;
+};
+
+export type ReactCheckboxPropsType = {
+	checked: boolean;
+	onChange: React.ChangeEventHandler<HTMLInputElement>;
+	onBlur: React.FocusEventHandler<HTMLInputElement>;
+};
+
+export type ReactNativeTextInputPropsType<T> = {
+	value: T;
+	onChangeText: (value: string) => void;
+	onBlur: () => void;
+};
+
 export type FormCtlHookReturnType<T> = {
 	data: {
 		[key in keyof T]: {
@@ -18,10 +36,21 @@ export type FormCtlHookReturnType<T> = {
 
 			valid: boolean;
 			invalid: boolean;
+
 			dirty: boolean;
+			markDirty: (value?: boolean) => void;
+			touched: boolean;
+			markTouched: (value?: boolean) => void;
+			tod: boolean;
 
 			error?: ErrorType;
 			errors?: ErrorsMapType;
+
+			inputProps: T[key] extends string | number
+				? ReactInputPropsType<T[key]>
+				: never;
+			checkboxProps: T[key] extends boolean ? ReactCheckboxPropsType : never;
+			rnInputProps: ReactNativeTextInputPropsType<T[key]>;
 		};
 	};
 
@@ -31,12 +60,14 @@ export type FormCtlHookReturnType<T> = {
 	valid: boolean;
 	invalid: boolean;
 	dirty: boolean;
+	touched: boolean;
 };
 
 export type InternalState<T> = {
 	[key in keyof T]: {
 		value: T[key];
 		dirty: boolean;
+		touched: boolean;
 	};
 };
 
@@ -49,7 +80,7 @@ export const useFormCtl = <T>(
 
 	// Map internal state to output state
 	const output = getDetailedFormData(input, state, setState);
-	const { valid, dirty } = getGlobalState(output);
+	const { valid, dirty, touched } = getGlobalState(output);
 	const formData = getGlobalFormData(state);
 
 	// Function for updating the whole form at once
@@ -62,9 +93,11 @@ export const useFormCtl = <T>(
 		value: formData,
 		setValue: setValue,
 
-		valid: valid,
+		valid,
 		invalid: !valid,
-		dirty: dirty,
+
+		dirty,
+		touched,
 	};
 };
 
@@ -78,6 +111,7 @@ const getGlobalState = <T>(output: FormCtlHookReturnType<T>['data']) => {
 	return {
 		valid: outValues.every(({ valid }) => valid),
 		dirty: outValues.some(({ dirty }) => dirty),
+		touched: outValues.some(({ touched }) => touched),
 	};
 };
 
@@ -89,30 +123,74 @@ const getDetailedFormData = <T>(
 	let output: FormCtlHookReturnType<T>['data'] = {} as any;
 	for (let key in input) {
 		const [, validators] = input[key];
-		const { value, dirty } = state[key];
+		const { value, dirty, touched } = state[key];
 
 		const { errors, errorsMap, hasErrors } = getErrorProps(value, validators);
 
-		const updateValue = (value: any) => {
+		const setValue = (value: any) => {
 			setState(oldState => ({
 				...oldState,
 				[key]: {
 					value,
-					dirty: true,
+					dirty: oldState[key] !== value,
+					touched: true,
 				},
 			}));
 		};
 
+		const markDirty = (value: boolean = true) => {
+			setState(oldState => ({
+				...oldState,
+				[key]: {
+					...oldState[key],
+					dirty: value,
+				},
+			}));
+		};
+		const markTouched = (value: boolean = true) => {
+			setState(oldState => ({
+				...oldState,
+				[key]: {
+					...oldState[key],
+					touched: value,
+				},
+			}));
+		};
+
+		//@ts-ignore
 		output[key] = {
 			value,
-			setValue: updateValue,
+			setValue,
 
 			valid: !hasErrors,
 			invalid: hasErrors,
-			dirty: dirty,
+
+			dirty,
+			markDirty,
+			touched,
+			markTouched,
+			tod: dirty || touched,
 
 			error: hasErrors ? errors[0] : undefined,
 			errors: hasErrors ? errorsMap : undefined,
+
+			inputProps: {
+				value,
+				onChange: e => setValue(e.target.value),
+				onBlur: () => markTouched(),
+			},
+
+			checkboxProps: {
+				checked: value as any as boolean,
+				onChange: () => setValue(!value),
+				onBlur: () => markTouched(),
+			},
+
+			rnInputProps: {
+				value,
+				onChangeText: e => setValue(e),
+				onBlur: () => markTouched(),
+			},
 		};
 	}
 
@@ -130,6 +208,7 @@ const getInternalState = <T>(
 		internalState[key] = {
 			value,
 			dirty: false,
+			touched: false,
 		};
 	}
 
@@ -145,6 +224,7 @@ const getInternalStateFromFormData = <T>(input: T): InternalState<T> => {
 		internalState[key] = {
 			value,
 			dirty: true,
+			touched: true,
 		};
 	}
 
