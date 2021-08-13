@@ -1,42 +1,27 @@
-export type CommonErrorTypes = 'required' | 'minLength' | 'maxLength';
-export type ErrorType = {
-	name: CommonErrorTypes | string;
-	[prop: string]: any;
-};
-export type ErrorsMapType = {
-	[prop in CommonErrorTypes | string]: {
-		[prop: string]: any;
-	};
-};
-
 export type ValidatorType = (value: any) => ErrorType | null;
 
-const requiredValidator: ValidatorType = (value: any) => {
-	if (value == null || value === '' || value === false) {
-		return {
-			name: 'required',
-			got: value,
-		};
-	}
-
-	return null;
-};
-
-const requiredTrueValidator: ValidatorType = (value: any) => {
-	if (value !== true) {
-		return {
-			name: 'requiredTrue',
-			got: value,
-		};
-	}
-
-	return null;
-};
-
 export const Validators = {
-	required: requiredValidator,
-	requiredTrue: requiredTrueValidator,
-	minLength: (length: number): ValidatorType => {
+	required: (value: any) => {
+		if (value == null || value === '' || value === false) {
+			return {
+				name: 'required',
+				got: value,
+			};
+		}
+
+		return null;
+	},
+	requiredTrue: (value: any) => {
+		if (value !== true) {
+			return {
+				name: 'requiredTrue',
+				got: value,
+			};
+		}
+
+		return null;
+	},
+	minLength: (length: number) => {
 		return (value: string) => {
 			if (value.length < length) {
 				return {
@@ -50,7 +35,7 @@ export const Validators = {
 			return null;
 		};
 	},
-	maxLength: (length: number): ValidatorType => {
+	maxLength: (length: number) => {
 		return (value: string) => {
 			if (value.length > length) {
 				return {
@@ -64,7 +49,7 @@ export const Validators = {
 			return null;
 		};
 	},
-	min: (min: number): ValidatorType => {
+	min: (min: number) => {
 		return (value: number) => {
 			if (value < min) {
 				return {
@@ -77,7 +62,7 @@ export const Validators = {
 			return null;
 		};
 	},
-	max: (max: number): ValidatorType => {
+	max: (max: number) => {
 		return (value: number) => {
 			if (value > max) {
 				return {
@@ -90,7 +75,7 @@ export const Validators = {
 			return null;
 		};
 	},
-	pattern: (pattern: RegExp): ValidatorType => {
+	pattern: (pattern: RegExp) => {
 		return (value: string) => {
 			const match = value.match(pattern);
 			if (!(match && value === match[0])) {
@@ -108,8 +93,28 @@ export const Validators = {
 	},
 };
 
+type ValidatorsMapType = typeof Validators;
+// prettier-ignore
 export type ErrorMappingsType = {
-	[key in CommonErrorTypes | string]: (error: ErrorType) => string;
+	[errorName in keyof Omit<ValidatorsMapType, 'required' | 'requiredTrue'>]?: (
+		values: NonNullable<ReturnType<ReturnType<ValidatorsMapType[errorName]>>>
+	) => string;
+} & {
+	[errorName in keyof Pick<ValidatorsMapType, 'required' | 'requiredTrue'>]?: (
+		values: NonNullable<ReturnType<ValidatorsMapType[errorName]>>
+	) => string;
+} & {
+	[prop: string]: (values: any) => string;
+};
+
+export type ErrorType = {
+	name: keyof ValidatorsMapType | string;
+	[prop: string]: any;
+};
+export type ErrorsMapType = {
+	[prop in keyof ValidatorsMapType | string]: {
+		[prop: string]: any;
+	};
 };
 
 export const extError = (
