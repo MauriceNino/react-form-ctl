@@ -1,9 +1,18 @@
-[![npm version](https://badge.fury.io/js/react-form-ctl.svg)](https://badge.fury.io/js/react-form-ctl)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![npm version](https://img.shields.io/npm/v/react-form-ctl.svg?style=flat)](https://www.npmjs.com/package/react-form-ctl)
 [![Build Status](https://drone.mauz.io/api/badges/MauriceNino/react-form-ctl/status.svg)](https://drone.mauz.io/MauriceNino/react-form-ctl)
 
 # React Form Ctl
 
 React Form Ctl is a **simple** and **type-safe** way to handle form values and validation. It is inspired by Angular's `FormControl` and/or `FormBuilder`.
+
+Compatible with React and React-Native aswell.
+
+## Installation
+
+```cli
+> npm install react-form-ctl
+```
 
 ## Basic Usage
 
