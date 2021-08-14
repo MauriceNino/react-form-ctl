@@ -7,6 +7,8 @@
 React Form Ctl is a **simple** and **type-safe** way to handle form values and validation with bot React and React Native. 
 It is inspired by Angular's `FormControl` and/or `FormBuilder`.
 
+- Demo: [Click Here to get to the CodeSandbox](https://codesandbox.io/s/keen-wind-ipdmb?file=/src/App.tsx)
+
 ## Why use react-form-ctl?
 
 - No runtime dependencies, other than React itself
