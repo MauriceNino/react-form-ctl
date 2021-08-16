@@ -39,7 +39,7 @@ const {data} = useFormCtl<FormData>({
 return <>
     <input
         type="text"
-        {...data.name.inputProps}
+        {...data.name.inputProps()}
     />
 
     {/* ... */}
@@ -49,8 +49,10 @@ return <>
 There are a number of input helpers available:
 
 - `inputProps` -> for HTML `input`s
+- `numberInputProps` -> for HTML `input`s of type number
 - `checkboxProps` -> for HTML checkbox `input`s
 - `rnInputProps` -> for React Native `TextInput`s
+- `rnNumberInputProps` -> for React Native `TextInput`s of type number
 
 Although if you want more granular control, you can do all the state changing by yourself, using the exposed properties:
 
@@ -135,6 +137,7 @@ There are a number of Validators already included:
 - requiredTrue
 - minLength
 - maxLength
+- numeric
 - min
 - max
 - pattern

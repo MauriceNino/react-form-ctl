@@ -54,6 +54,16 @@ export const Validators = {
 			return null;
 		};
 	},
+	numeric: (value: any) => {
+		if (isNaN(+value)) {
+			return {
+				name: 'numeric',
+				got: value,
+			};
+		}
+
+		return null;
+	},
 	min: (min: number) => {
 		return (value: number) => {
 			if (value < min) {
@@ -96,6 +106,8 @@ export const Validators = {
 	regex: function (pattern: RegExp) {
 		return this.pattern(pattern);
 	},
+
+	// Helpers
 	create: <V, T = any>(validator: ValidatorType<V, T>) => {
 		return validator;
 	},
@@ -107,13 +119,14 @@ export const Validators = {
 };
 
 type ValidatorsMapType = Omit<typeof Validators, 'create' | 'createParam'>;
+type SingleDepthValidators = 'required' | 'requiredTrue' | 'numeric';
 // prettier-ignore
 export type ErrorMappingsType = {
-	[errorName in keyof Omit<ValidatorsMapType, 'required' | 'requiredTrue'>]?: (
+	[errorName in keyof Omit<ValidatorsMapType, SingleDepthValidators>]?: (
 		values: NonNullable<ReturnType<ReturnType<ValidatorsMapType[errorName]>>>
 	) => string;
 } & {
-	[errorName in keyof Pick<ValidatorsMapType, 'required' | 'requiredTrue'>]?: (
+	[errorName in keyof Pick<ValidatorsMapType, SingleDepthValidators>]?: (
 		values: NonNullable<ReturnType<ValidatorsMapType[errorName]>>
 	) => string;
 } & {
@@ -141,6 +154,13 @@ export const extError = (
 	}
 
 	const mappedError = map[error.name];
+
+	if (!mappedError) {
+		throw new Error(
+			`No error-mapping specified for error type "${error.name}"`
+		);
+	}
+
 	return mappedError(error);
 };
 

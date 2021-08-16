@@ -6,8 +6,15 @@ import {
 	ValidatorType,
 } from './validators';
 
+type PartialNumberNull<T> = {
+	[key in keyof T]: T[key] extends number ? T[key] | null : T[key];
+};
+
 export type FormCtlHookInputType<T> = {
-	[key in keyof T]: [T[key], ValidatorType<T[key], T>[]?];
+	[key in keyof T]: [
+		T[key] extends number ? T[key] | null : T[key],
+		ValidatorType<T[key], T>[]?
+	];
 };
 
 export type ReactInputPropsType<T> = {
@@ -31,7 +38,7 @@ export type ReactNativeTextInputPropsType<T> = {
 export type FormCtlHookReturnType<T> = {
 	data: {
 		[key in keyof T]: {
-			value: T[key];
+			value: T[key] extends number ? T[key] | null : T[key];
 			setValue: (value: T[key]) => void;
 
 			valid: boolean;
@@ -46,15 +53,25 @@ export type FormCtlHookReturnType<T> = {
 			error?: ErrorType;
 			errors?: ErrorsMapType;
 
-			inputProps: T[key] extends string | number
-				? ReactInputPropsType<T[key]>
+			inputProps: T[key] extends string
+				? () => ReactInputPropsType<string>
 				: never;
-			checkboxProps: T[key] extends boolean ? ReactCheckboxPropsType : never;
-			rnInputProps: ReactNativeTextInputPropsType<T[key]>;
+			numberInputProps: T[key] extends number
+				? () => ReactInputPropsType<number>
+				: never;
+			checkboxProps: T[key] extends boolean
+				? () => ReactCheckboxPropsType
+				: never;
+			rnInputProps: T[key] extends string
+				? () => ReactNativeTextInputPropsType<string>
+				: never;
+			rnNumberInputProps: T[key] extends number
+				? () => ReactNativeTextInputPropsType<string>
+				: never;
 		};
 	};
 
-	value: T;
+	value: PartialNumberNull<T>;
 	setValue: (value: T) => void;
 
 	valid: boolean;
@@ -65,7 +82,7 @@ export type FormCtlHookReturnType<T> = {
 
 export type InternalState<T> = {
 	[key in keyof T]: {
-		value: T[key];
+		value: T[key] extends number ? T[key] | null : T[key];
 		dirty: boolean;
 		touched: boolean;
 	};
@@ -161,6 +178,17 @@ const getDetailedFormData = <T>(
 			}));
 		};
 
+		const setNumberValue = (input: string) => {
+			const numInput = +input;
+			if (input === '') {
+				setValue(null);
+			} else if (!isNaN(numInput)) {
+				setValue(numInput);
+			} else {
+				markTouched();
+			}
+		};
+
 		//@ts-ignore
 		output[key] = {
 			value,
@@ -178,23 +206,35 @@ const getDetailedFormData = <T>(
 			error: hasErrors ? errors[0] : undefined,
 			errors: hasErrors ? errorsMap : undefined,
 
-			inputProps: {
+			inputProps: () => ({
 				value,
 				onChange: e => setValue(e.target.value),
 				onBlur: () => markTouched(),
-			},
+			}),
 
-			checkboxProps: {
+			numberInputProps: () => ({
+				value: value == null ? '' : value,
+				onChange: e => setNumberValue(e.target.value),
+				onBlur: () => markTouched(),
+			}),
+
+			checkboxProps: () => ({
 				checked: value as any as boolean,
 				onChange: () => setValue(!value),
 				onBlur: () => markTouched(),
-			},
+			}),
 
-			rnInputProps: {
+			rnInputProps: () => ({
 				value,
 				onChangeText: e => setValue(e),
 				onBlur: () => markTouched(),
-			},
+			}),
+
+			rnNumberInputProps: () => ({
+				value: value == null ? '' : '' + value,
+				onChangeText: e => setNumberValue(e),
+				onBlur: () => markTouched(),
+			}),
 		};
 	}
 
@@ -235,8 +275,10 @@ const getInternalStateFromFormData = <T>(input: T): InternalState<T> => {
 	return internalState;
 };
 
-const getGlobalFormData = <T>(input: InternalState<T>): T => {
-	let formData: T = {} as any;
+const getGlobalFormData = <T>(
+	input: InternalState<T>
+): PartialNumberNull<T> => {
+	let formData: PartialNumberNull<T> = {} as any;
 
 	for (let key in input) {
 		const value = input[key];

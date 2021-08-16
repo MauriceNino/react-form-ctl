@@ -81,8 +81,8 @@ describe('usage-tests', () => {
 				<input
 					id='age-inp'
 					type='number'
-					value={form.data.age.value}
-					onChange={e => form.data.age.setValue(e.target.value as any)}
+					value={form.data.age.value || ''}
+					onChange={e => form.data.age.setValue(+e.target.value)}
 				/>
 				<div id='age-out'>{form.data.age.value}</div>
 				<div id='age-valid'>{form.data.age.valid + ''}</div>
@@ -273,6 +273,7 @@ describe('usage-tests', () => {
 	type ValidatedSingleInputHelperTestFormData = {
 		name: string;
 		agree: boolean;
+		age: number;
 	};
 	const ValidatedSingleInputHelperTestApp = (props: {
 		formCtl: FormCtlHookInputType<ValidatedSingleInputHelperTestFormData>;
@@ -283,11 +284,15 @@ describe('usage-tests', () => {
 
 		return (
 			<>
-				<input id='name-inp' type='text' {...data.name.inputProps} />
+				<input id='name-inp' type='text' {...data.name.inputProps()} />
 				<div id='name-out'>{data.name.value}</div>
 				<div id='name-touched'>{data.name.touched + ''}</div>
 
-				<input id='agree-inp' type='text' {...data.agree.checkboxProps} />
+				<input id='age-inp' type='number' {...data.age.numberInputProps()} />
+				<div id='age-out'>{data.age.value}</div>
+				<div id='age-touched'>{data.age.touched + ''}</div>
+
+				<input id='agree-inp' type='text' {...data.agree.checkboxProps()} />
 				<div id='agree-out'>{data.agree.value + ''}</div>
 				<div id='agree-touched'>{data.agree.touched + ''}</div>
 			</>
@@ -299,32 +304,45 @@ describe('usage-tests', () => {
 			{
 				name: [''],
 				agree: [false],
+				age: [0],
 			};
 		const wrapper = shallow(
 			<ValidatedSingleInputHelperTestApp formCtl={formCtl} />
 		);
 		const nameInp = wrapper.find('#name-inp');
 		const agreeInp = wrapper.find('#agree-inp');
+		const ageInp = wrapper.find('#age-inp');
 
 		expect(wrapper.find('#name-out')).to.have.text('');
 		expect(wrapper.find('#name-touched')).to.have.text('false');
 		expect(wrapper.find('#agree-out')).to.have.text('false');
 		expect(wrapper.find('#agree-touched')).to.have.text('false');
+		expect(wrapper.find('#age-out')).to.have.text('0');
+		expect(wrapper.find('#age-touched')).to.have.text('false');
 
 		nameInp.simulate('focus', {});
 		nameInp.simulate('blur', {});
 		agreeInp.simulate('focus', {});
 		agreeInp.simulate('blur', {});
+		ageInp.simulate('focus', {});
+		ageInp.simulate('blur', {});
 
 		expect(wrapper.find('#name-touched')).to.have.text('true');
 		expect(wrapper.find('#agree-touched')).to.have.text('true');
+		expect(wrapper.find('#age-touched')).to.have.text('true');
 
 		nameInp.simulate('change', { target: { value: 'Mauz' } });
 		agreeInp.simulate('change', {});
+		ageInp.simulate('change', { target: { value: '123' } });
 
 		expect(wrapper.find('#name-out')).to.have.text('Mauz');
 		expect(wrapper.find('#name-touched')).to.have.text('true');
 		expect(wrapper.find('#agree-out')).to.have.text('true');
 		expect(wrapper.find('#agree-touched')).to.have.text('true');
+		expect(wrapper.find('#age-out')).to.have.text('123');
+		expect(wrapper.find('#age-touched')).to.have.text('true');
+
+		ageInp.simulate('change', { target: { value: '123abc' } });
+		expect(wrapper.find('#age-out')).to.have.text('123');
 	});
 });

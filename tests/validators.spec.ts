@@ -61,6 +61,22 @@ describe('validators', () => {
 			});
 		});
 
+		describe('#numeric', () => {
+			it('should get error if not numeric', () => {
+				expect(Validators.numeric('test')).to.not.be.null;
+				expect(Validators.numeric({ num: 1 })).to.not.be.null;
+			});
+			it('should work if numeric', () => {
+				expect(Validators.numeric(1)).to.be.null;
+				expect(Validators.numeric(-1)).to.be.null;
+				expect(Validators.numeric(-1.123)).to.be.null;
+				expect(Validators.numeric('1')).to.be.null;
+				expect(Validators.numeric('-1')).to.be.null;
+				expect(Validators.numeric('12e3')).to.be.null;
+				expect(Validators.numeric('12.123')).to.be.null;
+			});
+		});
+
 		describe('#min', () => {
 			it('should get error if too small', () => {
 				expect(Validators.min(5)(4)).to.not.be.null;
@@ -279,6 +295,20 @@ describe('validators', () => {
 			const errorText = extError(errorMap, errors.errors[0]);
 
 			expect(errorText).to.equal('');
+		});
+
+		it('should fail if no error mapping specified', () => {
+			const errors = getErrorProps('', [Validators.required], {});
+			const errorMap: ErrorMappingsType = {};
+
+			let error: Error | null = null;
+			try {
+				extError(errorMap, errors.errors[0]);
+			} catch (e) {
+				error = e;
+			}
+			expect(error).to.not.be.null;
+			expect(error?.message).to.contain('No error-mapping specified');
 		});
 	});
 });
