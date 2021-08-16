@@ -7,7 +7,7 @@ import {
 } from './validators';
 
 export type FormCtlHookInputType<T> = {
-	[key in keyof T]: [T[key], ValidatorType[]?];
+	[key in keyof T]: [T[key], ValidatorType<T[key], T>[]?];
 };
 
 export type ReactInputPropsType<T> = {
@@ -125,7 +125,11 @@ const getDetailedFormData = <T>(
 		const [, validators] = input[key];
 		const { value, dirty, touched } = state[key];
 
-		const { errors, errorsMap, hasErrors } = getErrorProps(value, validators);
+		const { errors, errorsMap, hasErrors } = getErrorProps(
+			value,
+			validators,
+			state
+		);
 
 		const setValue = (value: any) => {
 			setState(oldState => ({

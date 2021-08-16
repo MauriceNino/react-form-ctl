@@ -1,4 +1,9 @@
-export type ValidatorType = (value: any) => ErrorType | null;
+import { InternalState } from './form-ctl';
+
+export type ValidatorType<V = any, T = any> = (
+	value: V,
+	internalState: InternalState<T>
+) => ErrorType | null;
 
 export const Validators = {
 	required: (value: any) => {
@@ -91,9 +96,17 @@ export const Validators = {
 	regex: function (pattern: RegExp) {
 		return this.pattern(pattern);
 	},
+	create: <V, T = any>(validator: ValidatorType<V, T>) => {
+		return validator;
+	},
+	createParametrized: <P, V, T = any>(
+		validator: (value: P) => ValidatorType<V, T>
+	) => {
+		return validator;
+	},
 };
 
-type ValidatorsMapType = typeof Validators;
+type ValidatorsMapType = Omit<typeof Validators, 'create' | 'createParam'>;
 // prettier-ignore
 export type ErrorMappingsType = {
 	[errorName in keyof Omit<ValidatorsMapType, 'required' | 'requiredTrue'>]?: (
@@ -109,6 +122,8 @@ export type ErrorMappingsType = {
 
 export type ErrorType = {
 	name: keyof ValidatorsMapType | string;
+	got?: any;
+	expected?: any;
 	[prop: string]: any;
 };
 export type ErrorsMapType = {
@@ -129,9 +144,10 @@ export const extError = (
 	return mappedError(error);
 };
 
-export const getErrorProps = (
+export const getErrorProps = <T>(
 	value: any,
-	validators: ValidatorType[] | undefined
+	validators: ValidatorType<any, T>[] | undefined,
+	internalState: InternalState<T>
 ): {
 	errors: ErrorType[];
 	errorsMap: ErrorsMapType;
@@ -139,7 +155,7 @@ export const getErrorProps = (
 } => {
 	const errors =
 		(validators
-			?.map(validator => validator(value))
+			?.map(validator => validator(value, internalState))
 			.filter(error => error != null) as ErrorType[]) || [];
 
 	const errorsMap = errors.reduce((acc, error) => {

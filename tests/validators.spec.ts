@@ -102,7 +102,7 @@ describe('validators', () => {
 
 	describe('#getErrorProps', () => {
 		it('should get no error if no validator fails', () => {
-			const errors = getErrorProps('TEST', [Validators.required]);
+			const errors = getErrorProps('TEST', [Validators.required], {});
 
 			expect(errors).to.contain.all.keys('errors', 'errorsMap', 'hasErrors');
 			expect(errors.hasErrors).to.be.false;
@@ -121,9 +121,9 @@ describe('validators', () => {
 				return null;
 			};
 
-			const errors = getErrorProps('TEST', [isTest]);
+			const errors = getErrorProps('TEST', [isTest], {});
 			expect(errors.hasErrors).to.be.false;
-			const errors2 = getErrorProps('INVALID', [isTest]);
+			const errors2 = getErrorProps('INVALID', [isTest], {});
 			expect(errors2.hasErrors).to.be.true;
 		});
 
@@ -140,17 +140,83 @@ describe('validators', () => {
 					return null;
 				};
 
-			const errors = getErrorProps('TEST', [is('TEST')]);
+			const errors = getErrorProps('TEST', [is('TEST')], {});
 			expect(errors.hasErrors).to.be.false;
-			const errors2 = getErrorProps('INVALID', [is('TEST')]);
+			const errors2 = getErrorProps('INVALID', [is('TEST')], {});
 			expect(errors2.hasErrors).to.be.true;
 		});
 
+		it('should work with custom validator through #create', () => {
+			const isTest = Validators.create((value: string) => {
+				if (value !== 'TEST') {
+					return {
+						name: 'isTest',
+					};
+				}
+				return null;
+			});
+
+			const errors = getErrorProps('TEST', [isTest], {});
+			expect(errors.hasErrors).to.be.false;
+			const errors2 = getErrorProps('INVALID', [isTest], {});
+			expect(errors2.hasErrors).to.be.true;
+		});
+
+		it('should work with custom parametrized validator through #create', () => {
+			const is = Validators.createParametrized(
+				(isVal: string) => (value: string) => {
+					if (value !== isVal) {
+						return {
+							name: 'is',
+							got: value,
+						};
+					}
+					return null;
+				}
+			);
+
+			const errors = getErrorProps('TEST', [is('TEST')], {});
+			expect(errors.hasErrors).to.be.false;
+			const errors2 = getErrorProps('INVALID', [is('TEST')], {});
+			expect(errors2.hasErrors).to.be.true;
+		});
+
+		it('should work with dependable validators', () => {
+			const isPasswordSame = Validators.create(
+				(passwordRepeat: string, values) => {
+					if (passwordRepeat !== values.password.value) {
+						return {
+							name: 'isPasswordSame',
+						};
+					}
+					return null;
+				}
+			);
+
+			const errors = getErrorProps('123', [isPasswordSame], {
+				password: {
+					value: 'abc',
+					dirty: true,
+					touched: true,
+				},
+			});
+			expect(errors.hasErrors).to.be.true;
+			const errors2 = getErrorProps('123', [isPasswordSame], {
+				password: {
+					value: '123',
+					dirty: true,
+					touched: true,
+				},
+			});
+			expect(errors2.hasErrors).to.be.false;
+		});
+
 		it('should get single error if one validator fails', () => {
-			const errors = getErrorProps('', [
-				Validators.required,
-				Validators.maxLength(3),
-			]);
+			const errors = getErrorProps(
+				'',
+				[Validators.required, Validators.maxLength(3)],
+				{}
+			);
 			const expectedError = {
 				name: 'required',
 				got: '',
@@ -164,10 +230,11 @@ describe('validators', () => {
 		});
 
 		it('should get multiple errors if multiple validators fail', () => {
-			const errors = getErrorProps('', [
-				Validators.required,
-				Validators.minLength(3),
-			]);
+			const errors = getErrorProps(
+				'',
+				[Validators.required, Validators.minLength(3)],
+				{}
+			);
 			const expectedErrorReq = {
 				name: 'required',
 				got: '',
@@ -193,7 +260,7 @@ describe('validators', () => {
 
 	describe('#extError', () => {
 		it('should get error text when error appears', () => {
-			const errors = getErrorProps('', [Validators.required]);
+			const errors = getErrorProps('', [Validators.required], {});
 			const errorMap: ErrorMappingsType = {
 				required: () => 'req',
 			};
@@ -204,7 +271,7 @@ describe('validators', () => {
 		});
 
 		it('should get empty text when no error appears', () => {
-			const errors = getErrorProps('TEST', [Validators.required]);
+			const errors = getErrorProps('TEST', [Validators.required], {});
 			const errorMap: ErrorMappingsType = {
 				required: () => 'req',
 			};

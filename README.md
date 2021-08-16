@@ -143,10 +143,10 @@ There are a number of Validators already included:
 You can also implement your own validators and pass them to the Validators array:
 
 ```tsx
-import {useFormCtl, Validators, ValidatorType} from 'react-form-ctl';
+import {useFormCtl, Validators} from 'react-form-ctl';
 
 // A simple custom validator
-const nameNotBlacklisted: ValidatorType = (value: any) => {
+const nameNotBlacklisted = Validators.create((value: any) => {
     if(['Max', 'Anna'].includes(value)) {
         return {
             name: 'nameNotBlacklisted',
@@ -155,10 +155,10 @@ const nameNotBlacklisted: ValidatorType = (value: any) => {
     }
 
     return null;
-}
+});
 
 // You can also create parametrized custom validators
-const isExactAge: (age: number): ValidatorType => {
+const isExactAge = Validators.createParametrized((age: number) => {
     return (value: number) => {
         if (value !== age) {
             return {
@@ -169,19 +169,34 @@ const isExactAge: (age: number): ValidatorType => {
 
         return null;
     };
-},
+});
+
+// You can also check against other form values in your validator
+const passwordRepeatMatches = Validators.create((passwordRepeat: string, state) => {
+    if (passwordRepeat !== state.password.value) {
+        return {
+            name: 'passwordRepeatMatches',
+            expected: passwordRepeat
+        };
+    }
+
+    return null;
+});
 
 // Then use them like other validators inside your Validators array
 const {data} = useFormCtl<FormData>({
     name: ['John', [nameNotBlacklisted]],
     age: [21, [isExactAge(42)]],
+    password: [''],
+    age: ['', [passwordRepeatMatches],
     // ...
 });
 
 // Don't forget to also write custom error handlers if you want
 const errorMap: ErrorMappingsType = {
     nameNotBlacklisted: ({found}) => `Name is blacklisted: ${found}`,
-    isExactAge: ({expected}) => `Expected age of ${expected}`
+    isExactAge: ({expected}) => `Expected age of ${expected}`,
+    passwordRepeatMatches: () => `Password does not match`
 };
 ```
 
