@@ -1,6 +1,6 @@
 {
 	"name": "react-form-ctl",
-	"version": "1.0.19",
+	"version": "1.0.21",
 	"description": "A way of validating forms, inspired by Angular's FormControl",
 	"main": "dist/index.js",
 	"files": [

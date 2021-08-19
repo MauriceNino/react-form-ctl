@@ -48,7 +48,7 @@ export type FormCtlHookReturnType<T> = {
 			markDirty: (value?: boolean) => void;
 			touched: boolean;
 			markTouched: (value?: boolean) => void;
-			tod: boolean;
+			touchedOrDirty: boolean;
 
 			error?: ErrorType;
 			errors?: ErrorsMapType;
@@ -201,7 +201,7 @@ const getDetailedFormData = <T>(
 			markDirty,
 			touched,
 			markTouched,
-			tod: dirty || touched,
+			touchedOrDirty: dirty || touched,
 
 			error: hasErrors ? errors[0] : undefined,
 			errors: hasErrors ? errorsMap : undefined,

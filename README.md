@@ -244,7 +244,7 @@ type FieldState = {
     markTouched: (value?: boolean) => void; // Set the value to a desired touched state (if no parameter is given, it is set to touched = true)
     dirty: boolean; // If the value was updated once
     markDirty: (value?: boolean) => void; // Set the value to a desired dirty state (if no parameter is given, it is set to dirty = true)
-    tod: boolean; // Shorthand for touched || dirty
+    touchedOrDirty: boolean; // Shorthand for touched || dirty
 
     error?: { 
         name: string; // name of the error (e.g. 'required')

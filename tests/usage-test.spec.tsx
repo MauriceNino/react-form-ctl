@@ -194,7 +194,7 @@ describe('usage-tests', () => {
 				<div id='name-touched'>{data.name.touched + ''}</div>
 				<div id='name-err'>
 					{data.name.invalid &&
-						data.name.tod &&
+						data.name.touchedOrDirty &&
 						extError(props.errorMap, data.name.error)}
 				</div>
 
