@@ -259,8 +259,6 @@ type FieldState = {
     value: FieldType; // The value of the field
     setValue: (value: FieldType) => void; // Callback to set the value of the field
 
-    inputProps: {/* ... */}; // Object containing necessary methods for React input elements to be spread on
-
     valid: boolean; // If the value passes all Validators
     invalid: boolean; // The opposite of the above
 
