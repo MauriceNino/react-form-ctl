@@ -84,16 +84,18 @@ In case you want to write a more specific error message for different errors, it
 This Error-Map is also a good chance to bring your localized form data in.
 
 ```tsx
-import {useFormCtl, extError, Validators, ErrorMappingsType} from 'react-form-ctl';
+import {useFormCtl, extError, Validators, ErrorMappings} from 'react-form-ctl';
 
 const {data} = useFormCtl<FormData>({
     name: ['John', [Validators.required, Validators.minLength(5)]],
     // ...
 });
 
-const errorMap: ErrorMappingsType = {
+const errorMap: ErrorMappings = {
     required: () => 'Field is required',
-    minLength: ({length, expectedLength}) => `Minimum Length: ${length}/${expectedLength}`
+    minLength: ({length, expectedLength}) => `Minimum Length: ${length}/${expectedLength}`,
+    default: () => 'Unknown error' // Default mapping fires, when no mapping is given for another error
+                    // If no default mapping is set, a runtime exception may be thrown for unknown exceptions
 };
 
 return <>
@@ -143,13 +145,21 @@ There are a number of Validators already included:
 - pattern
 - regex (=> alias for pattern)
 
-You can also implement your own validators and pass them to the Validators array:
+If you need more validation types (email, phone number, ...), we recommend using the [Validator.js](https://github.com/validatorjs/validator.js) library. 
+Check their documentation for more information about the available validators.
+
+```cli
+> npm i validator && npm i -D @types/validator
+```
+
+You can then implement your own validators and pass them to the Validators array:
 
 ```tsx
 import {useFormCtl, Validators} from 'react-form-ctl';
+import isEmail from 'validator/lib/isEmail';
 
 // A simple custom validator
-const nameNotBlacklisted = Validators.create((value: any) => {
+const nameNotBlacklisted = Validators.create<any>(value => {
     if(['Max', 'Anna'].includes(value)) {
         return {
             name: 'nameNotBlacklisted',
@@ -161,8 +171,8 @@ const nameNotBlacklisted = Validators.create((value: any) => {
 });
 
 // You can also create parametrized custom validators
-const isExactAge = Validators.createParametrized((age: number) => {
-    return (value: number) => {
+const isExactAge = Validators.createParametrized<number, number>(age => {
+    return value => {
         if (value !== age) {
             return {
                 name: 'isExactAge',
@@ -175,7 +185,7 @@ const isExactAge = Validators.createParametrized((age: number) => {
 });
 
 // You can also check against other form values in your validator
-const passwordRepeatMatches = Validators.create((passwordRepeat: string, state) => {
+const passwordRepeatMatches = Validators.create<string, FormData>((passwordRepeat, state) => {
     if (passwordRepeat !== state.password.value) {
         return {
             name: 'passwordRepeatMatches',
@@ -186,20 +196,34 @@ const passwordRepeatMatches = Validators.create((passwordRepeat: string, state) 
     return null;
 });
 
+// You can use the Validator.js library to write your own custom validators
+const validateEmail = Validators.create<string>(email => {
+	if (!isEmail(email)) {
+		return {
+			name: 'validateEmail',
+		};
+	}
+
+	return null;
+});
+
 // Then use them like other validators inside your Validators array
 const {data} = useFormCtl<FormData>({
     name: ['John', [nameNotBlacklisted]],
     age: [21, [isExactAge(42)]],
     password: [''],
-    age: ['', [passwordRepeatMatches],
+    passwordRepeat: ['', [passwordRepeatMatches],
+    email: ['test@example.com', [validateEmail]]
     // ...
 });
 
 // Don't forget to also write custom error handlers if you want
-const errorMap: ErrorMappingsType = {
+const errorMap: ErrorMappings = {
     nameNotBlacklisted: ({found}) => `Name is blacklisted: ${found}`,
     isExactAge: ({expected}) => `Expected age of ${expected}`,
-    passwordRepeatMatches: () => `Password does not match`
+    passwordRepeatMatches: () => `Password does not match`,
+    validateEmail: () => `Email invalid`,
+    default: () => 'Unknown error'
 };
 ```
 
@@ -207,7 +231,7 @@ const errorMap: ErrorMappingsType = {
 
 You will get back an object containing information about the general state of the form and also a more detailed information about each form field:
 
-```tsx
+```ts
 type State = {
 	data: {
         [FieldName: string]: { // For each passed field, you get an entry 
@@ -230,7 +254,7 @@ type State = {
 
 For each passed field, you will get back the following:
 
-```tsx
+```ts
 type FieldState = {
     value: FieldType; // The value of the field
     setValue: (value: FieldType) => void; // Callback to set the value of the field
@@ -263,3 +287,15 @@ type FieldState = {
 
 Dirty means that the value of a property has updated once.
 Touched means that the value of a property was tried to be updated once, but not necessarily has been.
+
+A common use-case for those properties is error-handling. An error for a value should mostly only be shown, if the value is invalid AND was already changed once, or the input field has been focused and unfocused again. To implement this, you would have to write:
+
+```ts
+if (somefield.invalid && (somefield.touched || somefield.dirty)) { /* ... */ }
+```
+
+Because this is so common, react-form-ctl has implemented a little shortcut for that:
+
+```ts
+if (somefield.invalid && somefield.touchedOrDirty) { /* ... */ }
+```

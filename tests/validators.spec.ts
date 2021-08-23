@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import {
-	ErrorMappingsType,
-	ErrorType,
+	ErrorMappings,
+	OutputErrorType,
 	extError,
 	getErrorProps,
 	Validators,
@@ -236,7 +236,7 @@ describe('validators', () => {
 			const expectedError = {
 				name: 'required',
 				got: '',
-			} as ErrorType;
+			} as OutputErrorType;
 
 			expect(errors.hasErrors).to.be.true;
 			expect(errors.errors).to.deep.equal([expectedError]);
@@ -254,13 +254,13 @@ describe('validators', () => {
 			const expectedErrorReq = {
 				name: 'required',
 				got: '',
-			} as ErrorType;
+			} as OutputErrorType;
 			const expectedErrorMinLen = {
 				name: 'minLength',
 				got: '',
 				length: 0,
 				expectedLength: 3,
-			} as ErrorType;
+			} as OutputErrorType;
 
 			expect(errors.hasErrors).to.be.true;
 			expect(errors.errors).to.deep.equal([
@@ -277,7 +277,7 @@ describe('validators', () => {
 	describe('#extError', () => {
 		it('should get error text when error appears', () => {
 			const errors = getErrorProps('', [Validators.required], {});
-			const errorMap: ErrorMappingsType = {
+			const errorMap: ErrorMappings = {
 				required: () => 'req',
 			};
 
@@ -288,7 +288,7 @@ describe('validators', () => {
 
 		it('should get empty text when no error appears', () => {
 			const errors = getErrorProps('TEST', [Validators.required], {});
-			const errorMap: ErrorMappingsType = {
+			const errorMap: ErrorMappings = {
 				required: () => 'req',
 			};
 
@@ -297,9 +297,20 @@ describe('validators', () => {
 			expect(errorText).to.equal('');
 		});
 
+		it('should use default mapping if no mapping is specified', () => {
+			const errors = getErrorProps('', [Validators.required], {});
+			const errorMap: ErrorMappings = {
+				default: () => 'default',
+			};
+
+			const errorText = extError(errorMap, errors.errors[0]);
+
+			expect(errorText).to.equal('default');
+		});
+
 		it('should fail if no error mapping specified', () => {
 			const errors = getErrorProps('', [Validators.required], {});
-			const errorMap: ErrorMappingsType = {};
+			const errorMap: ErrorMappings = {};
 
 			let error: Error | null = null;
 			try {

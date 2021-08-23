@@ -125,4 +125,34 @@ describe('form-ctl', () => {
 			expect(detailedFormData.name.errors).to.be.undefined;
 		});
 	});
+
+	describe('RN input props', () => {
+		it('for coverage', () => {
+			const hookInput: FormCtlHookInputType<TestFormData> = {
+				name: ['Maurice'],
+				age: [22],
+				isOldEnough: [true],
+			};
+			const internalState: InternalState<TestFormData> = {
+				name: { value: 'Maurice', dirty: false, touched: false },
+				age: { value: 22, dirty: false, touched: false },
+				isOldEnough: { value: true, dirty: false, touched: false },
+			};
+
+			const detailedFormData = getDetailedFormData(
+				hookInput,
+				internalState,
+				() => {}
+			);
+
+			expect(detailedFormData.name.rnInputProps).to.not.be.undefined;
+			expect(detailedFormData.age.rnNumberInputProps).to.not.be.undefined;
+			expect(detailedFormData.name.rnInputProps().value).to.be.equal('Maurice');
+			expect(detailedFormData.age.rnNumberInputProps().value).to.be.equal('22');
+			detailedFormData.name.rnInputProps().onBlur();
+			detailedFormData.name.rnInputProps().onChangeText('Test');
+			detailedFormData.age.rnNumberInputProps().onBlur();
+			detailedFormData.age.rnNumberInputProps().onChangeText('23');
+		});
+	});
 });

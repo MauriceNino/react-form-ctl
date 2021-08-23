@@ -4,7 +4,7 @@ import chaiEnzyme from 'chai-enzyme';
 import Enzyme, { mount, render, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { FormCtlHookInputType, useFormCtl } from '../src/form-ctl';
-import { ErrorMappingsType, extError, Validators } from '../src/validators';
+import { ErrorMappings, extError, Validators } from '../src/validators';
 
 Enzyme.configure({ adapter: new Adapter() });
 chai.use(chaiEnzyme());
@@ -58,7 +58,7 @@ describe('usage-tests', () => {
 	};
 	const ValidatedTestApp = (props: {
 		formCtl: FormCtlHookInputType<ValidatedTestFormData>;
-		errorMap: ErrorMappingsType;
+		errorMap: ErrorMappings;
 	}) => {
 		const form = useFormCtl<ValidatedTestFormData>(props.formCtl);
 
@@ -117,7 +117,7 @@ describe('usage-tests', () => {
 			age: [0],
 			isOldEnough: [false],
 		};
-		const errorMap: ErrorMappingsType = {};
+		const errorMap: ErrorMappings = {};
 		const wrapper = shallow(
 			<ValidatedTestApp formCtl={formCtl} errorMap={errorMap} />
 		);
@@ -130,7 +130,7 @@ describe('usage-tests', () => {
 			age: [0, [Validators.min(5)]],
 			isOldEnough: [false],
 		};
-		const errorMap: ErrorMappingsType = {
+		const errorMap: ErrorMappings = {
 			required: () => 'required',
 			min: ({ got, expected }) => `min ${got} < ${expected}`,
 		};
@@ -175,7 +175,7 @@ describe('usage-tests', () => {
 
 	const ValidatedSingleInputTestApp = (props: {
 		formCtl: FormCtlHookInputType<{ name: string }>;
-		errorMap: ErrorMappingsType;
+		errorMap: ErrorMappings;
 	}) => {
 		const { data, setValue } = useFormCtl<{ name: string }>(props.formCtl);
 
@@ -219,7 +219,7 @@ describe('usage-tests', () => {
 		const formCtl: FormCtlHookInputType<{ name: string }> = {
 			name: ['', [Validators.required]],
 		};
-		const errorMap: ErrorMappingsType = {
+		const errorMap: ErrorMappings = {
 			required: () => 'required',
 			min: ({ got, expected }) => `min ${got} < ${expected}`,
 		};
@@ -344,5 +344,8 @@ describe('usage-tests', () => {
 
 		ageInp.simulate('change', { target: { value: '123abc' } });
 		expect(wrapper.find('#age-out')).to.have.text('123');
+
+		ageInp.simulate('change', { target: { value: '' } });
+		expect(wrapper.find('#age-out')).to.have.text('');
 	});
 });
