@@ -4,14 +4,14 @@
 
 # React Form Ctl
 
-React Form Ctl is a **simple** and **type-safe** way to handle form values and validation with bot React and React Native. 
-It is inspired by Angular's `FormControl` and/or `FormBuilder`.
+React Form Ctl is a **simple** and **type-safe** way to handle form values and validation with both React and React Native. 
+It is inspired by Angulars `FormControl` and/or `FormBuilder`.
 
 - Demo: [Click Here to get to the CodeSandbox](https://codesandbox.io/s/keen-wind-ipdmb?file=/src/App.tsx)
 
 ## Why use react-form-ctl?
 
-- No runtime dependencies, other than React itself
+- No runtime dependencies, only requires React as a peer dependency
 - Fully type-safe
 - Localization ready (i18n)
 - Simple API that will be familiar to Angular developers and easy to learn for React developers
@@ -28,10 +28,10 @@ It is inspired by Angular's `FormControl` and/or `FormBuilder`.
 A quick example can be as easy as implementing a hook with some initial data and spreading the given properties onto a input element:
 
 ```tsx
-import {useFormCtl} from 'react-form-ctl';
+import {useFormControl} from 'react-form-ctl';
 
 // Inside component
-const {data} = useFormCtl<FormData>({
+const {controls} = useFormControl<FormData>({
     name: ['John'],
     // ...
 });
@@ -39,7 +39,7 @@ const {data} = useFormCtl<FormData>({
 return <>
     <input
         type="text"
-        {...data.name.inputProps()}
+        {...controls.name.inputProps()}
     />
 
     {/* ... */}
@@ -57,10 +57,10 @@ There are a number of input helpers available:
 Although if you want more granular control, you can do all the state changing by yourself, using the exposed properties:
 
 ```tsx
-import {useFormCtl, Validators} from 'react-form-ctl';
+import {useFormControl, Validators} from 'react-form-ctl';
 
 // Inside component
-const {data} = useFormCtl<FormData>({
+const {controls} = useFormControl<FormData>({
     name: ['John', [Validators.required, Validators.minLength(3)]],
     // ...
 });
@@ -68,9 +68,9 @@ const {data} = useFormCtl<FormData>({
 return <>
     <input
         type="text"
-        value={data.name.value}
-        onChange={(e) => data.name.setValue(e.target.value)}
-        onBlur={() => data.name.markTouched()}
+        value={controls.name.value}
+        onChange={(e) => controls.name.setValue(e.target.value)}
+        onBlur={() => controls.name.markTouched()}
     />
 
     {/* ... */}
@@ -84,9 +84,9 @@ In case you want to write a more specific error message for different errors, it
 This Error-Map is also a good chance to bring your localized form data in.
 
 ```tsx
-import {useFormCtl, extError, Validators, ErrorMappings} from 'react-form-ctl';
+import {useFormControl, extError, Validators, ErrorMappings} from 'react-form-ctl';
 
-const {data} = useFormCtl<FormData>({
+const {controls} = useFormControl<FormData>({
     name: ['John', [Validators.required, Validators.minLength(5)]],
     // ...
 });
@@ -103,8 +103,8 @@ return <>
 
     {/* Check if the property contains errors (invalid) 
         + also check if the property has been modified (edited or touched) */}
-    { data.name.invalid && (data.name.touched || data.name.dirty) && <div>
-        {extError(errorMap, data.name.error)}
+    { controls.name.invalid && (controls.name.touched || controls.name.dirty) && <div>
+        {extError(errorMap, controls.name.error)}
     </div>}
 </>
 ```
@@ -112,9 +112,9 @@ return <>
 Alternatively, you can also get all errors manually and implement your own error handling like so:
 
 ```tsx
-import {useFormCtl, Validators} from 'react-form-ctl';
+import {useFormControl, Validators} from 'react-form-ctl';
 
-const {data} = useFormCtl<FormData>({
+const {controls} = useFormControl<FormData>({
     name: ['John', [Validators.required, Validators.minLength(5)]],
     // ...
 });
@@ -122,11 +122,11 @@ const {data} = useFormCtl<FormData>({
 return <>
     {/* input field */}
 
-    { data.name.errors?.required && <div>
+    { controls.name.errors?.required && <div>
         Field is required
     </div>}
-    { data.name.errors?.minLength && <div>
-        Minimum Length: {data.name.errors.minLength.length}/{data.name.errors.minLength.expectedLength}
+    { controls.name.errors?.minLength && <div>
+        Minimum Length: {controls.name.errors.minLength.length}/{controls.name.errors.minLength.expectedLength}
     </div>}
 </>
 ```
@@ -155,7 +155,7 @@ Check their documentation for more information about the available validators.
 You can then implement your own validators and pass them to the Validators array:
 
 ```tsx
-import {useFormCtl, Validators} from 'react-form-ctl';
+import {useFormControl, Validators} from 'react-form-ctl';
 import isEmail from 'validator/lib/isEmail';
 
 // A simple custom validator
@@ -208,7 +208,7 @@ const validateEmail = Validators.create<string>(email => {
 });
 
 // Then use them like other validators inside your Validators array
-const {data} = useFormCtl<FormData>({
+const {controls} = useFormControl<FormData>({
     name: ['John', [nameNotBlacklisted]],
     age: [21, [isExactAge(42)]],
     password: [''],
@@ -233,7 +233,7 @@ You will get back an object containing information about the general state of th
 
 ```ts
 type State = {
-	data: {
+	controls: {
         [FieldName: string]: { // For each passed field, you get an entry 
                                // in this object with detailed information about it
 

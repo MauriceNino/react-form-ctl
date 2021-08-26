@@ -1,10 +1,12 @@
 import React from 'react';
 import chai from 'chai';
 import chaiEnzyme from 'chai-enzyme';
-import Enzyme, { mount, render, shallow } from 'enzyme';
+import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { FormCtlHookInputType, useFormCtl } from '../src/form-ctl';
-import { ErrorMappings, extError, Validators } from '../src/validators';
+import { useFormControl } from '../src/form-control';
+import { extError, Validators } from '../src/validators';
+import { FormControlHookInputType } from '../src/types/state';
+import { ErrorMappings } from '../src/types/error-handling';
 
 Enzyme.configure({ adapter: new Adapter() });
 chai.use(chaiEnzyme());
@@ -24,7 +26,7 @@ describe('usage-tests', () => {
 		type TestFormData = {
 			name: string;
 		};
-		const form = useFormCtl<TestFormData>({
+		const form = useFormControl<TestFormData>({
 			name: ['Mauz'],
 		});
 
@@ -33,11 +35,11 @@ describe('usage-tests', () => {
 				<input
 					id='name-inp'
 					type='text'
-					value={form.data.name.value}
-					onChange={e => form.data.name.setValue(e.target.value)}
+					value={form.controls.name.value}
+					onChange={e => form.controls.name.setValue(e.target.value)}
 				/>
-				<div id='name-out'>{form.data.name.value}</div>
-				<div id='name-err'>{form.data.name.error?.name}</div>
+				<div id='name-out'>{form.controls.name.value}</div>
+				<div id='name-err'>{form.controls.name.error?.name}</div>
 			</>
 		);
 	};
@@ -57,62 +59,62 @@ describe('usage-tests', () => {
 		isOldEnough: boolean;
 	};
 	const ValidatedTestApp = (props: {
-		formCtl: FormCtlHookInputType<ValidatedTestFormData>;
+		formCtl: FormControlHookInputType<ValidatedTestFormData>;
 		errorMap: ErrorMappings;
 	}) => {
-		const form = useFormCtl<ValidatedTestFormData>(props.formCtl);
+		const form = useFormControl<ValidatedTestFormData>(props.formCtl);
 
 		return (
 			<>
 				<input
 					id='name-inp'
 					type='text'
-					value={form.data.name.value}
-					onChange={e => form.data.name.setValue(e.target.value)}
+					value={form.controls.name.value}
+					onChange={e => form.controls.name.setValue(e.target.value)}
 				/>
-				<div id='name-out'>{form.data.name.value}</div>
-				<div id='name-valid'>{form.data.name.valid + ''}</div>
-				<div id='name-dirty'>{form.data.name.dirty + ''}</div>
+				<div id='name-out'>{form.controls.name.value}</div>
+				<div id='name-valid'>{form.controls.name.valid + ''}</div>
+				<div id='name-dirty'>{form.controls.name.dirty + ''}</div>
 				<div id='name-err'>
-					{form.data.name.invalid &&
-						extError(props.errorMap, form.data.name.error)}
+					{form.controls.name.invalid &&
+						extError(props.errorMap, form.controls.name.error)}
 				</div>
 
 				<input
 					id='age-inp'
 					type='number'
-					value={form.data.age.value || ''}
-					onChange={e => form.data.age.setValue(+e.target.value)}
+					value={form.controls.age.value || ''}
+					onChange={e => form.controls.age.setValue(+e.target.value)}
 				/>
-				<div id='age-out'>{form.data.age.value}</div>
-				<div id='age-valid'>{form.data.age.valid + ''}</div>
-				<div id='age-dirty'>{form.data.age.dirty + ''}</div>
+				<div id='age-out'>{form.controls.age.value}</div>
+				<div id='age-valid'>{form.controls.age.valid + ''}</div>
+				<div id='age-dirty'>{form.controls.age.dirty + ''}</div>
 				<div id='age-err'>
-					{form.data.age.invalid &&
-						extError(props.errorMap, form.data.age.error)}
+					{form.controls.age.invalid &&
+						extError(props.errorMap, form.controls.age.error)}
 				</div>
 
 				<input
 					id='isOldEnough-inp'
 					type='checkbox'
-					checked={form.data.isOldEnough.value}
+					checked={form.controls.isOldEnough.value}
 					onChange={e =>
-						form.data.isOldEnough.setValue(!form.data.isOldEnough.value)
+						form.controls.isOldEnough.setValue(!form.controls.isOldEnough.value)
 					}
 				/>
-				<div id='isOldEnough-out'>{form.data.isOldEnough.value}</div>
-				<div id='isOldEnough-valid'>{form.data.isOldEnough.valid + ''}</div>
-				<div id='isOldEnough-dirty'>{form.data.isOldEnough.dirty + ''}</div>
+				<div id='isOldEnough-out'>{form.controls.isOldEnough.value}</div>
+				<div id='isOldEnough-valid'>{form.controls.isOldEnough.valid + ''}</div>
+				<div id='isOldEnough-dirty'>{form.controls.isOldEnough.dirty + ''}</div>
 				<div id='isOldEnough-err'>
-					{form.data.isOldEnough.invalid &&
-						extError(props.errorMap, form.data.isOldEnough.error)}
+					{form.controls.isOldEnough.invalid &&
+						extError(props.errorMap, form.controls.isOldEnough.error)}
 				</div>
 			</>
 		);
 	};
 
 	it('renders complex form', () => {
-		const formCtl: FormCtlHookInputType<ValidatedTestFormData> = {
+		const formCtl: FormControlHookInputType<ValidatedTestFormData> = {
 			name: [''],
 			age: [0],
 			isOldEnough: [false],
@@ -125,7 +127,7 @@ describe('usage-tests', () => {
 	});
 
 	it('validates complex form + transition', () => {
-		const formCtl: FormCtlHookInputType<ValidatedTestFormData> = {
+		const formCtl: FormControlHookInputType<ValidatedTestFormData> = {
 			name: ['', [Validators.required]],
 			age: [0, [Validators.min(5)]],
 			isOldEnough: [false],
@@ -174,33 +176,35 @@ describe('usage-tests', () => {
 	});
 
 	const ValidatedSingleInputTestApp = (props: {
-		formCtl: FormCtlHookInputType<{ name: string }>;
+		formCtl: FormControlHookInputType<{ name: string }>;
 		errorMap: ErrorMappings;
 	}) => {
-		const { data, setValue } = useFormCtl<{ name: string }>(props.formCtl);
+		const { controls: controls, setValue } = useFormControl<{ name: string }>(
+			props.formCtl
+		);
 
 		return (
 			<>
 				<input
 					id='name-inp'
 					type='text'
-					value={data.name.value}
-					onChange={e => data.name.setValue(e.target.value)}
-					onBlur={() => data.name.markTouched()}
+					value={controls.name.value}
+					onChange={e => controls.name.setValue(e.target.value)}
+					onBlur={() => controls.name.markTouched()}
 				/>
-				<div id='name-out'>{data.name.value}</div>
-				<div id='name-valid'>{data.name.valid + ''}</div>
-				<div id='name-dirty'>{data.name.dirty + ''}</div>
-				<div id='name-touched'>{data.name.touched + ''}</div>
+				<div id='name-out'>{controls.name.value}</div>
+				<div id='name-valid'>{controls.name.valid + ''}</div>
+				<div id='name-dirty'>{controls.name.dirty + ''}</div>
+				<div id='name-touched'>{controls.name.touched + ''}</div>
 				<div id='name-err'>
-					{data.name.invalid &&
-						data.name.touchedOrDirty &&
-						extError(props.errorMap, data.name.error)}
+					{controls.name.invalid &&
+						controls.name.touchedOrDirty &&
+						extError(props.errorMap, controls.name.error)}
 				</div>
 
 				<button
 					id='mark-non-dirty'
-					onClick={() => data.name.markDirty(false)}
+					onClick={() => controls.name.markDirty(false)}
 				></button>
 
 				<button
@@ -216,7 +220,7 @@ describe('usage-tests', () => {
 	};
 
 	it('validates state changes', () => {
-		const formCtl: FormCtlHookInputType<{ name: string }> = {
+		const formCtl: FormControlHookInputType<{ name: string }> = {
 			name: ['', [Validators.required]],
 		};
 		const errorMap: ErrorMappings = {
@@ -276,31 +280,37 @@ describe('usage-tests', () => {
 		age: number;
 	};
 	const ValidatedSingleInputHelperTestApp = (props: {
-		formCtl: FormCtlHookInputType<ValidatedSingleInputHelperTestFormData>;
+		formCtl: FormControlHookInputType<ValidatedSingleInputHelperTestFormData>;
 	}) => {
-		const { data } = useFormCtl<ValidatedSingleInputHelperTestFormData>(
+		const { controls } = useFormControl<ValidatedSingleInputHelperTestFormData>(
 			props.formCtl
 		);
 
+		controls.name.valid;
+
 		return (
 			<>
-				<input id='name-inp' type='text' {...data.name.inputProps()} />
-				<div id='name-out'>{data.name.value}</div>
-				<div id='name-touched'>{data.name.touched + ''}</div>
+				<input id='name-inp' type='text' {...controls.name.inputProps()} />
+				<div id='name-out'>{controls.name.value}</div>
+				<div id='name-touched'>{controls.name.touched + ''}</div>
 
-				<input id='age-inp' type='number' {...data.age.numberInputProps()} />
-				<div id='age-out'>{data.age.value}</div>
-				<div id='age-touched'>{data.age.touched + ''}</div>
+				<input
+					id='age-inp'
+					type='number'
+					{...controls.age.numberInputProps()}
+				/>
+				<div id='age-out'>{controls.age.value}</div>
+				<div id='age-touched'>{controls.age.touched + ''}</div>
 
-				<input id='agree-inp' type='text' {...data.agree.checkboxProps()} />
-				<div id='agree-out'>{data.agree.value + ''}</div>
-				<div id='agree-touched'>{data.agree.touched + ''}</div>
+				<input id='agree-inp' type='text' {...controls.agree.checkboxProps()} />
+				<div id='agree-out'>{controls.agree.value + ''}</div>
+				<div id='agree-touched'>{controls.agree.touched + ''}</div>
 			</>
 		);
 	};
 
 	it('validate state changes using input helper', () => {
-		const formCtl: FormCtlHookInputType<ValidatedSingleInputHelperTestFormData> =
+		const formCtl: FormControlHookInputType<ValidatedSingleInputHelperTestFormData> =
 			{
 				name: [''],
 				agree: [false],

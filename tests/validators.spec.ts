@@ -2,11 +2,9 @@ import { expect } from 'chai';
 import {
 	ErrorMappings,
 	OutputErrorType,
-	extError,
-	getErrorProps,
-	Validators,
 	ValidatorType,
-} from '../src/validators';
+} from '../src/types/error-handling';
+import { extError, getErrorProps, Validators } from '../src/validators';
 
 describe('validators', () => {
 	describe('.Validators', () => {

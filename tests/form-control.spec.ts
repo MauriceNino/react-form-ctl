@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import rewire from 'rewire';
 import {
-	FormCtlHookInputType,
+	FormControlHookInputType,
 	FormCtlHookReturnType,
 	InternalState,
-} from '../src/form-ctl';
-const formCtlModule = rewire('../dist/form-ctl');
+} from '../src/types/state';
+const formControlModule = rewire('../dist/form-control');
 
 type TestFormData = {
 	name: string;
@@ -13,12 +13,12 @@ type TestFormData = {
 	isOldEnough: boolean;
 };
 
-describe('form-ctl', () => {
+describe('form-control', () => {
 	type GetInternalState<T> = (
-		input: FormCtlHookInputType<T>
+		input: FormControlHookInputType<T>
 	) => InternalState<T>;
 	const getInternalState: GetInternalState<TestFormData> =
-		formCtlModule.__get__('getInternalState');
+		formControlModule.__get__('getInternalState');
 
 	describe('#getInternalState', () => {
 		it('should get Basic internal state', () => {
@@ -38,7 +38,7 @@ describe('form-ctl', () => {
 
 	type GetInternalStateFromFormData<T> = (input: T) => InternalState<T>;
 	const getInternalStateFromFormData: GetInternalStateFromFormData<TestFormData> =
-		formCtlModule.__get__('getInternalStateFromFormData');
+		formControlModule.__get__('getInternalStateFromFormData');
 
 	describe('#getInternalStateFromFormData', () => {
 		it('should get Basic internal state', () => {
@@ -58,7 +58,7 @@ describe('form-ctl', () => {
 
 	type GetGlobalFormData<T> = (input: InternalState<T>) => T;
 	const getGlobalFormData: GetGlobalFormData<TestFormData> =
-		formCtlModule.__get__('getGlobalFormData');
+		formControlModule.__get__('getGlobalFormData');
 
 	describe('#getGlobalFormData', () => {
 		it('should get FormData from Basic internal state', () => {
@@ -76,18 +76,18 @@ describe('form-ctl', () => {
 	});
 
 	type GetDetailedFormData<T> = (
-		input: FormCtlHookInputType<T>,
+		input: FormControlHookInputType<T>,
 		state: InternalState<T>,
 		setState: (
 			updateFunc: (value: InternalState<T>) => InternalState<T>
 		) => void
-	) => FormCtlHookReturnType<T>['data'];
+	) => FormCtlHookReturnType<T>['controls'];
 	const getDetailedFormData: GetDetailedFormData<TestFormData> =
-		formCtlModule.__get__('getDetailedFormData');
+		formControlModule.__get__('getDetailedFormData');
 
 	describe('#getDetailedFormData', () => {
 		it('should get output data from internal state and input', () => {
-			const hookInput: FormCtlHookInputType<TestFormData> = {
+			const hookInput: FormControlHookInputType<TestFormData> = {
 				name: ['Maurice'],
 				age: [22],
 				isOldEnough: [true],
@@ -128,7 +128,7 @@ describe('form-ctl', () => {
 
 	describe('RN input props', () => {
 		it('for coverage', () => {
-			const hookInput: FormCtlHookInputType<TestFormData> = {
+			const hookInput: FormControlHookInputType<TestFormData> = {
 				name: ['Maurice'],
 				age: [22],
 				isOldEnough: [true],

@@ -1,2 +1,4 @@
-export { useFormCtl } from './form-ctl';
-export { Validators, extError, ErrorMappings } from './validators';
+export { useFormControl } from './form-control';
+export { Validators, extError } from './validators';
+export { ErrorMappings, ValidatorType } from './types/error-handling';
+export { FormControlHookInputType, FormCtlHookReturnType } from './types/state';

@@ -1,9 +1,10 @@
-import { InternalState } from './form-ctl';
-
-export type ValidatorType<V = any, T = any> = (
-	value: V,
-	internalState: InternalState<T>
-) => OutputErrorType | null;
+import {
+	ErrorMappings,
+	OutputErrorsMapType,
+	OutputErrorType,
+	ValidatorType,
+} from './types/error-handling';
+import { InternalState } from './types/state';
 
 /**
  * Holds validators for form values, as well as helpers to create your own validators.
@@ -206,50 +207,6 @@ export const Validators = {
 	},
 };
 
-type ValidatorsMapType = Omit<
-	typeof Validators,
-	'create' | 'createParametrized'
->;
-type SingleDepthValidators = 'required' | 'requiredTrue' | 'numeric';
-
-// prettier-ignore
-/**
- * Typing for the map of error messages, that can be given to the {@link extError} function.
- *
- * @example
- * ```ts
- * const errorMap: ErrorMappings = {
- *   required: () => 'Field is required',
- *   minLength: ({length, expectedLength}) => `Minimum Length: ${length}/${expectedLength}`,
- *   default: () => 'Unknown error'
- * };
- * ```
- */
-export type ErrorMappings = {
-	[errorName in keyof Omit<ValidatorsMapType, SingleDepthValidators>]?: (
-		values: NonNullable<ReturnType<ReturnType<ValidatorsMapType[errorName]>>>
-	) => string;
-} & {
-	[errorName in keyof Pick<ValidatorsMapType, SingleDepthValidators>]?: (
-		values: NonNullable<ReturnType<ValidatorsMapType[errorName]>>
-	) => string;
-} & {
-	default?: (values: any) => string;
-} & {
-	[prop: string]: (values: any) => string;
-};
-
-export type OutputErrorType = {
-	name: keyof ValidatorsMapType | string;
-	got?: any;
-	expected?: any;
-	[prop: string]: any;
-};
-export type OutputErrorsMapType = {
-	[prop in keyof ValidatorsMapType | string]: {
-		[prop: string]: any;
-	};
-};
 /**
  * Extracts the error message from the given error object using the given error mappings.
  *

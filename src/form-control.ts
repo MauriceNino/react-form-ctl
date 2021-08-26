@@ -1,105 +1,11 @@
 import { useMemo, useState } from 'react';
 import {
-	OutputErrorsMapType,
-	OutputErrorType,
-	getErrorProps,
-	ValidatorType,
-} from './validators';
-
-/**
- * Helper that re-types a type, so that all number values are optional.
- *
- * This is important for the output, so that empty values are not rendered.
- * Otherwise the output could only be '0' which would always render a number.
- */
-type PartialNumberNull<T> = {
-	[key in keyof T]: T[key] extends number ? T[key] | null : T[key];
-};
-
-/**
- * The input type of the hook
- */
-export type FormCtlHookInputType<T> = {
-	[key in keyof T]: [
-		T[key] extends number ? T[key] | null : T[key],
-		ValidatorType<T[key], T>[]?
-	];
-};
-
-// Helpers for input props in the output of the hook
-export type ReactInputPropsType<T> = {
-	value: T;
-	onChange: React.ChangeEventHandler<HTMLInputElement>;
-	onBlur: React.FocusEventHandler<HTMLInputElement>;
-};
-
-export type ReactCheckboxPropsType = {
-	checked: boolean;
-	onChange: React.ChangeEventHandler<HTMLInputElement>;
-	onBlur: React.FocusEventHandler<HTMLInputElement>;
-};
-
-export type ReactNativeTextInputPropsType<T> = {
-	value: T;
-	onChangeText: (value: string) => void;
-	onBlur: () => void;
-};
-
-/**
- * The return type of the hook
- */
-export type FormCtlHookReturnType<T> = {
-	data: {
-		[key in keyof T]: {
-			value: T[key] extends number ? T[key] | null : T[key];
-			setValue: (value: T[key]) => void;
-
-			valid: boolean;
-			invalid: boolean;
-
-			dirty: boolean;
-			markDirty: (value?: boolean) => void;
-			touched: boolean;
-			markTouched: (value?: boolean) => void;
-			touchedOrDirty: boolean;
-
-			error?: OutputErrorType;
-			errors?: OutputErrorsMapType;
-
-			inputProps: T[key] extends string
-				? () => ReactInputPropsType<string>
-				: never;
-			numberInputProps: T[key] extends number
-				? () => ReactInputPropsType<number>
-				: never;
-			checkboxProps: T[key] extends boolean
-				? () => ReactCheckboxPropsType
-				: never;
-			rnInputProps: T[key] extends string
-				? () => ReactNativeTextInputPropsType<string>
-				: never;
-			rnNumberInputProps: T[key] extends number
-				? () => ReactNativeTextInputPropsType<string>
-				: never;
-		};
-	};
-
-	value: PartialNumberNull<T>;
-	setValue: (value: T) => void;
-
-	valid: boolean;
-	invalid: boolean;
-	dirty: boolean;
-	touched: boolean;
-};
-
-export type InternalState<T> = {
-	[key in keyof T]: {
-		value: T[key] extends number ? T[key] | null : T[key];
-		dirty: boolean;
-		touched: boolean;
-	};
-};
+	FormControlHookInputType,
+	FormCtlHookReturnType,
+	InternalState,
+} from './types/state';
+import { PartialNumberNull } from './types/utility';
+import { getErrorProps } from './validators';
 
 /**
  * A react hook to control form data.
@@ -112,7 +18,7 @@ export type InternalState<T> = {
  * }
  *
  * // Inside component
- * const {data} = useFormCtl<FormData>({
+ * const {controls} = useFormControl<FormData>({
  *   name: ['John', [Validators.required, Validators.minLength(3)]],
  *   // ...
  * });
@@ -120,17 +26,17 @@ export type InternalState<T> = {
  * return <>
  *   <input
  *     type="text"
- *     value={data.name.value}
- *     onChange={(e) => data.name.setValue(e.target.value)}
- *     onBlur={() => data.name.markTouched()}
+ *     value={controls.name.value}
+ *     onChange={(e) => controls.name.setValue(e.target.value)}
+ *     onBlur={() => controls.name.markTouched()}
  *   />
  * </>
  * ```
- * @param  {FormCtlHookInputType<T>} input the form data with its validators
+ * @param  {FormControlHookInputType<T>} input the form data with its validators
  * @returns {FormCtlHookReturnType<T>} the form data with its errors and meta information
  */
-export const useFormCtl = <T>(
-	input: FormCtlHookInputType<T>
+export const useFormControl = <T>(
+	input: FormControlHookInputType<T>
 ): FormCtlHookReturnType<T> => {
 	// Map to internal state and save it
 	const internalState = useMemo(() => getInternalState(input), [input]);
@@ -147,7 +53,7 @@ export const useFormCtl = <T>(
 	};
 
 	return {
-		data: output,
+		controls: output,
 		value: formData,
 		setValue: setValue,
 
@@ -162,7 +68,7 @@ export const useFormCtl = <T>(
 /**
  * A helper to calculate the global state of the form (valid, dirty, touched).
  */
-const getGlobalState = <T>(output: FormCtlHookReturnType<T>['data']) => {
+const getGlobalState = <T>(output: FormCtlHookReturnType<T>['controls']) => {
 	const outValues = [];
 
 	for (let key in output) {
@@ -180,11 +86,11 @@ const getGlobalState = <T>(output: FormCtlHookReturnType<T>['data']) => {
  * A helper to calculate the state and value of the form and build the output data.
  */
 const getDetailedFormData = <T>(
-	input: FormCtlHookInputType<T>,
+	input: FormControlHookInputType<T>,
 	state: InternalState<T>,
 	setState: (updateFunc: (value: InternalState<T>) => InternalState<T>) => void
-): FormCtlHookReturnType<T>['data'] => {
-	let output: FormCtlHookReturnType<T>['data'] = {} as any;
+): FormCtlHookReturnType<T>['controls'] => {
+	let output: FormCtlHookReturnType<T>['controls'] = {} as any;
 	for (let key in input) {
 		const [, validators] = input[key];
 		const { value, dirty, touched } = state[key];
@@ -292,7 +198,7 @@ const getDetailedFormData = <T>(
  * A helper to calculate the internal state from the hook input.
  */
 const getInternalState = <T>(
-	input: FormCtlHookInputType<T>
+	input: FormControlHookInputType<T>
 ): InternalState<T> => {
 	let internalState: InternalState<T> = {} as any;
 
