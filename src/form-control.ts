@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
 	FormControlHookInputType,
 	FormCtlHookReturnType,
@@ -42,6 +42,9 @@ export const useFormControl = <T>(
 	const internalState = useMemo(() => getInternalState(input), [input]);
 	const [state, setState] = useState<InternalState<T>>(internalState);
 
+	// Keep a copy of the initial internal state (used for reset)
+	const initialInternalState = useRef(internalState);
+
 	// Map internal state to output state
 	const output = getDetailedFormData(input, state, setState);
 	const { valid, dirty, touched } = getGlobalState(output);
@@ -52,10 +55,16 @@ export const useFormControl = <T>(
 		setState(() => getInternalStateFromFormData(value));
 	};
 
+	// Function for resetting the form
+	const reset = () => {
+		setState(() => initialInternalState.current);
+	};
+
 	return {
 		controls: output,
 		value: formData,
-		setValue: setValue,
+		setValue,
+		reset,
 
 		valid,
 		invalid: !valid,

@@ -183,6 +183,11 @@ export type FormCtlHookReturnType<T> = {
 	setValue: (value: T) => void;
 
 	/**
+	 * Resets the form to the initially passed values
+	 */
+	reset: () => void;
+
+	/**
 	 * If all controls in this form are valid
 	 */
 	valid: boolean;

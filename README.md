@@ -242,6 +242,7 @@ type State = {
     };
     value: FormData; // Get the input data as an object
 	setValue: (value: FormData) => void; // Update the whole form state at once
+    reset: () => void; // Reset the form to the initial values
 
     valid: boolean; // If the form passed all Validators
     invalid: boolean; // The opposite of the above

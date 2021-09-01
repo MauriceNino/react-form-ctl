@@ -1,12 +1,12 @@
-import React from 'react';
 import chai from 'chai';
 import chaiEnzyme from 'chai-enzyme';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import React from 'react';
 import { useFormControl } from '../src/form-control';
-import { extError, Validators } from '../src/validators';
-import { FormControlHookInputType } from '../src/types/state';
 import { ErrorMappings } from '../src/types/error-handling';
+import { FormControlHookInputType } from '../src/types/state';
+import { extError, Validators } from '../src/validators';
 
 Enzyme.configure({ adapter: new Adapter() });
 chai.use(chaiEnzyme());
@@ -179,9 +179,11 @@ describe('usage-tests', () => {
 		formCtl: FormControlHookInputType<{ name: string }>;
 		errorMap: ErrorMappings;
 	}) => {
-		const { controls: controls, setValue } = useFormControl<{ name: string }>(
-			props.formCtl
-		);
+		const {
+			controls: controls,
+			setValue,
+			reset,
+		} = useFormControl<{ name: string }>(props.formCtl);
 
 		return (
 			<>
@@ -215,6 +217,8 @@ describe('usage-tests', () => {
 						})
 					}
 				></button>
+
+				<button id='reset-global-state' onClick={() => reset()}></button>
 			</>
 		);
 	};
@@ -271,6 +275,15 @@ describe('usage-tests', () => {
 		expect(wrapper.find('#name-valid')).to.have.text('true');
 		expect(wrapper.find('#name-dirty')).to.have.text('true');
 		expect(wrapper.find('#name-touched')).to.have.text('true');
+		expect(wrapper.find('#name-err')).to.have.text('');
+
+		const resetStateButton = wrapper.find('#reset-global-state');
+		resetStateButton.simulate('click', {});
+
+		expect(wrapper.find('#name-out')).to.have.text('');
+		expect(wrapper.find('#name-valid')).to.have.text('false');
+		expect(wrapper.find('#name-dirty')).to.have.text('false');
+		expect(wrapper.find('#name-touched')).to.have.text('false');
 		expect(wrapper.find('#name-err')).to.have.text('');
 	});
 
