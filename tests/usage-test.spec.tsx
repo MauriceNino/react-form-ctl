@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiEnzyme from 'chai-enzyme';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormControl } from '../src/form-control';
 import { ErrorMappings } from '../src/types/error-handling';
 import { FormControlHookInputType } from '../src/types/state';
@@ -370,5 +370,49 @@ describe('usage-tests', () => {
 
 		ageInp.simulate('change', { target: { value: '' } });
 		expect(wrapper.find('#age-out')).to.have.text('');
+	});
+
+	const ChangingInputTestApp = () => {
+		const [name, setName] = useState('');
+		const { controls } = useFormControl<{ name: string }>({
+			name: [name],
+		});
+
+		useEffect(() => {
+			setName(controls.name.value);
+		}, [controls]);
+
+		return (
+			<>
+				<input
+					id='name-inp'
+					type='text'
+					value={controls.name.value}
+					onChange={e => controls.name.setValue(e.target.value)}
+					onBlur={() => controls.name.markTouched()}
+				/>
+				<div id='name-out'>{controls.name.value}</div>
+				<button
+					id='manual-value-set'
+					onClick={() => setName('Should not update')}
+				></button>
+			</>
+		);
+	};
+
+	it('validate state changes using external state', () => {
+		const wrapper = shallow(<ChangingInputTestApp />);
+		const nameInp = wrapper.find('#name-inp');
+
+		expect(wrapper.find('#name-out')).to.have.text('');
+
+		const btn = wrapper.find('#manual-value-set');
+		btn.simulate('click', {});
+
+		expect(wrapper.find('#name-out')).to.have.text('');
+
+		nameInp.simulate('change', { target: { value: 'Mauz' } });
+
+		expect(wrapper.find('#name-out')).to.have.text('Mauz');
 	});
 });

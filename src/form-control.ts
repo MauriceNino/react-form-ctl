@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useRef, useState } from 'react';
 import {
 	FormControlHookInputType,
 	FormCtlHookReturnType,
@@ -33,17 +33,21 @@ import { getErrorProps } from './validators';
  * </>
  * ```
  * @param  {FormControlHookInputType<T>} input the form data with its validators
+ * @param  {React.DependencyList} dependencies optional list of dependencies
  * @returns {FormCtlHookReturnType<T>} the form data with its errors and meta information
  */
 export const useFormControl = <T>(
-	input: FormControlHookInputType<T>
+	input: FormControlHookInputType<T>,
+	dependencies?: React.DependencyList
 ): FormCtlHookReturnType<T> => {
 	// Map to internal state and save it
-	const internalState = useMemo(() => getInternalState(input), [input]);
-	const [state, setState] = useState<InternalState<T>>(internalState);
-
 	// Keep a copy of the initial internal state (used for reset)
-	const initialInternalState = useRef(internalState);
+	const initialInternalState = useRef(
+		useMemo(() => getInternalState(input), [input])
+	);
+	const [state, setState] = useState<InternalState<T>>(
+		initialInternalState.current
+	);
 
 	// Map internal state to output state
 	const output = getDetailedFormData(input, state, setState);
@@ -57,10 +61,10 @@ export const useFormControl = <T>(
 
 	// Function for resetting the form
 	const reset = () => {
-		setState(() => initialInternalState.current);
+		setState(() => Object.assign({}, initialInternalState.current));
 	};
 
-	return {
+	const buildOutput = () => ({
 		controls: output,
 		value: formData,
 		setValue,
@@ -71,7 +75,19 @@ export const useFormControl = <T>(
 
 		dirty,
 		touched,
-	};
+	});
+
+	// Only update output ref when state changes
+	// -> important so that hooks that depend on the output don't re-render
+	const outputRef = useRef<FormCtlHookReturnType<T>>(buildOutput());
+	const stateRef = useRef<InternalState<T>>(state);
+
+	if (state !== stateRef.current) {
+		outputRef.current = buildOutput();
+		stateRef.current = state;
+	}
+
+	return outputRef.current;
 };
 
 /**
@@ -97,7 +113,7 @@ const getGlobalState = <T>(output: FormCtlHookReturnType<T>['controls']) => {
 const getDetailedFormData = <T>(
 	input: FormControlHookInputType<T>,
 	state: InternalState<T>,
-	setState: (updateFunc: (value: InternalState<T>) => InternalState<T>) => void
+	setState: Dispatch<SetStateAction<InternalState<T>>>
 ): FormCtlHookReturnType<T>['controls'] => {
 	let output: FormCtlHookReturnType<T>['controls'] = {} as any;
 	for (let key in input) {
