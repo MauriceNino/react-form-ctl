@@ -5,5 +5,6 @@ export {
 	FormControlHelpers,
 	FormControlHookInputType,
 	FormControlHookReturnType,
+	FormControlState,
 } from './types/state';
 export { extError, Validators } from './validators';
