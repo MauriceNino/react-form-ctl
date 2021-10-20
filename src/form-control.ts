@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useMemo, useRef, useState } from 'react';
 import {
 	FormControlHookInputType,
-	FormCtlHookReturnType,
+	FormControlHookReturnType,
 	InternalState,
 } from './types/state';
 import { PartialNumberNull } from './types/utility';
@@ -34,12 +34,12 @@ import { getErrorProps } from './validators';
  * ```
  * @param  {FormControlHookInputType<T>} input the form data with its validators
  * @param  {React.DependencyList} dependencies optional list of dependencies
- * @returns {FormCtlHookReturnType<T>} the form data with its errors and meta information
+ * @returns {FormControlHookReturnType<T>} the form data with its errors and meta information
  */
 export const useFormControl = <T>(
 	input: FormControlHookInputType<T>,
 	dependencies?: React.DependencyList
-): FormCtlHookReturnType<T> => {
+): FormControlHookReturnType<T> => {
 	// Map to internal state and save it
 	// Keep a copy of the initial internal state (used for reset)
 	const initialInternalState = useRef(
@@ -79,7 +79,7 @@ export const useFormControl = <T>(
 
 	// Only update output ref when state changes
 	// -> important so that hooks that depend on the output don't re-render
-	const outputRef = useRef<FormCtlHookReturnType<T>>(buildOutput());
+	const outputRef = useRef<FormControlHookReturnType<T>>(buildOutput());
 	const stateRef = useRef<InternalState<T>>(state);
 
 	if (state !== stateRef.current) {
@@ -93,7 +93,9 @@ export const useFormControl = <T>(
 /**
  * A helper to calculate the global state of the form (valid, dirty, touched).
  */
-const getGlobalState = <T>(output: FormCtlHookReturnType<T>['controls']) => {
+const getGlobalState = <T>(
+	output: FormControlHookReturnType<T>['controls']
+) => {
 	const outValues = [];
 
 	for (let key in output) {
@@ -114,8 +116,8 @@ const getDetailedFormData = <T>(
 	input: FormControlHookInputType<T>,
 	state: InternalState<T>,
 	setState: Dispatch<SetStateAction<InternalState<T>>>
-): FormCtlHookReturnType<T>['controls'] => {
-	let output: FormCtlHookReturnType<T>['controls'] = {} as any;
+): FormControlHookReturnType<T>['controls'] => {
+	let output: FormControlHookReturnType<T>['controls'] = {} as any;
 	for (let key in input) {
 		const [, validators] = input[key];
 		const { value, dirty, touched } = state[key];

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import rewire from 'rewire';
 import {
 	FormControlHookInputType,
-	FormCtlHookReturnType,
+	FormControlHookReturnType,
 	InternalState,
 } from '../src/types/state';
 const formControlModule = rewire('../dist/form-control');
@@ -81,7 +81,7 @@ describe('form-control', () => {
 		setState: (
 			updateFunc: (value: InternalState<T>) => InternalState<T>
 		) => void
-	) => FormCtlHookReturnType<T>['controls'];
+	) => FormControlHookReturnType<T>['controls'];
 	const getDetailedFormData: GetDetailedFormData<TestFormData> =
 		formControlModule.__get__('getDetailedFormData');
 
