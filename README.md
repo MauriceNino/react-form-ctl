@@ -259,6 +259,7 @@ For each passed field, you will get back the following:
 type FieldState = {
     value: FieldType; // The value of the field
     setValue: (value: FieldType) => void; // Callback to set the value of the field
+    resetValue: (value: FieldType) => void; // Callback to set the value of the field and setting touched = false & dirty = false
 
     valid: boolean; // If the value passes all Validators
     invalid: boolean; // The opposite of the above

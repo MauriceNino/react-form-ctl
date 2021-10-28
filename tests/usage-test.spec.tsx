@@ -219,6 +219,10 @@ describe('usage-tests', () => {
 				></button>
 
 				<button id='reset-global-state' onClick={() => reset()}></button>
+				<button
+					id='reset-name'
+					onClick={() => controls.name.resetValue('')}
+				></button>
 			</>
 		);
 	};
@@ -267,6 +271,12 @@ describe('usage-tests', () => {
 		expect(wrapper.find('#name-dirty')).to.have.text('false');
 		expect(wrapper.find('#name-touched')).to.have.text('true');
 		expect(wrapper.find('#name-err')).to.have.text('');
+
+		const resetNameButton = wrapper.find('#reset-name');
+		resetNameButton.simulate('click', {});
+		expect(wrapper.find('#name-out')).to.have.text('');
+		expect(wrapper.find('#name-dirty')).to.have.text('false');
+		expect(wrapper.find('#name-touched')).to.have.text('false');
 
 		const globalStateButton = wrapper.find('#set-global-state');
 		globalStateButton.simulate('click', {});

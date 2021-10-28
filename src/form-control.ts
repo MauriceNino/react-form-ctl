@@ -139,6 +139,17 @@ const getDetailedFormData = <T>(
 			}));
 		};
 
+		const resetValue = (value: any) => {
+			setState(oldState => ({
+				...oldState,
+				[key]: {
+					value,
+					dirty: false,
+					touched: false,
+				},
+			}));
+		};
+
 		const markDirty = (value: boolean = true) => {
 			setState(oldState => ({
 				...oldState,
@@ -173,6 +184,7 @@ const getDetailedFormData = <T>(
 		output[key] = {
 			value,
 			setValue,
+			resetValue,
 
 			valid: !hasErrors,
 			invalid: hasErrors,

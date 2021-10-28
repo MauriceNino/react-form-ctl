@@ -62,6 +62,14 @@ export type FormControlState<T> = {
 	setValue: (value: T) => void;
 
 	/**
+	 * Set the value of a form control and simultaneously set:
+	 *
+	 * - touched = false
+	 * - dirty = false
+	 */
+	resetValue: (value: T) => void;
+
+	/**
 	 * If the current value of the control is valid
 	 */
 	valid: boolean;
