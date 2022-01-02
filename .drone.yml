@@ -14,6 +14,6 @@ steps:
   - npm run test
 ---
 kind: signature
-hmac: 9cb8f7dbc4abab21af9a714ff7b6cecbfa8c5a375b6573902f39a720406e706e
+hmac: faf911d15870fd5805cf37f1878a73784bd26c63eaffc878a4e104bd094c59c6
 
 ...
