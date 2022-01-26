@@ -23,6 +23,7 @@ export const Validators = {
 
 		return null;
 	},
+
 	/**
 	 * Validate that a form value is exactly the value 'true'.
 	 */
@@ -36,6 +37,7 @@ export const Validators = {
 
 		return null;
 	},
+
 	/**
 	 * Validate that a forms string value is >= the given length
 	 *
@@ -55,6 +57,7 @@ export const Validators = {
 			return null;
 		};
 	},
+
 	/**
 	 * Validate that a forms string value is <= the given length
 	 *
@@ -74,6 +77,7 @@ export const Validators = {
 			return null;
 		};
 	},
+
 	/**
 	 * Validate that a form value can be parsed to a number.
 	 */
@@ -87,6 +91,7 @@ export const Validators = {
 
 		return null;
 	},
+
 	/**
 	 * Validate that a forms number value is <= the given minimum.
 	 *
@@ -105,6 +110,7 @@ export const Validators = {
 			return null;
 		};
 	},
+
 	/**
 	 * Validate that a forms number value is >= the given maximum.
 	 *
@@ -123,6 +129,7 @@ export const Validators = {
 			return null;
 		};
 	},
+
 	/**
 	 * Validate that a forms string value matches the given regex.
 	 *
@@ -141,14 +148,15 @@ export const Validators = {
 			return null;
 		};
 	},
+
 	/**
 	 * Validate that a forms string value matches the given regex.
 	 * Is a overload for the {@link Validators.pattern} validator.
 	 *
 	 * @param  {RegExp} pattern the regex pattern to match
 	 */
-	regex: function (pattern: RegExp) {
-		return this.pattern(pattern);
+	regex: (pattern: RegExp) => {
+		return Validators.pattern(pattern);
 	},
 
 	// Helpers
@@ -176,6 +184,7 @@ export const Validators = {
 	create: <V, T = any>(validator: ValidatorType<V, T>) => {
 		return validator;
 	},
+
 	/**
 	 * A helper function that creates type safe parametrized validators for the further usage in your forms.
 	 *
@@ -232,6 +241,7 @@ export const extError = (
 
 	return mappedError(error);
 };
+
 /**
  * extracts the errors from the given value, by checking the given validators
  *

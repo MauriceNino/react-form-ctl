@@ -4,16 +4,14 @@ type: docker
 name: test
 
 steps:
-- name: build-local
-  image: node:lts-alpine
-  commands:
-  - npm ci && npm run build
-- name: test
-  image: node:lts-alpine
-  commands:
-  - npm run test
+  - name: build-local
+    image: node:lts-alpine
+    commands:
+      - npm ci && npm run build
+  - name: test
+    image: node:lts-alpine
+    commands:
+      - npm run test
 ---
 kind: signature
-hmac: faf911d15870fd5805cf37f1878a73784bd26c63eaffc878a4e104bd094c59c6
-
-...
+hmac: 93abc1dbef64f9cc5630ab2b7fa66d79395e0daa3bc73eb54019c44e9b805c94

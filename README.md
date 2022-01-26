@@ -198,13 +198,13 @@ const passwordRepeatMatches = Validators.create<string, FormData>((passwordRepea
 
 // You can use the Validator.js library to write your own custom validators
 const validateEmail = Validators.create<string>(email => {
-	if (!isEmail(email)) {
-		return {
-			name: 'validateEmail',
-		};
-	}
+    if (!isEmail(email)) {
+        return {
+            name: 'validateEmail',
+        };
+    }
 
-	return null;
+    return null;
 });
 
 // Then use them like other validators inside your Validators array
@@ -212,7 +212,7 @@ const {controls} = useFormControl<FormData>({
     name: ['John', [nameNotBlacklisted]],
     age: [21, [isExactAge(42)]],
     password: [''],
-    passwordRepeat: ['', [passwordRepeatMatches],
+    passwordRepeat: ['', [passwordRepeatMatches]],
     email: ['test@example.com', [validateEmail]]
     // ...
 });
@@ -233,7 +233,7 @@ You will get back an object containing information about the general state of th
 
 ```ts
 type State = {
-	controls: {
+    controls: {
         [FieldName: string]: { // For each passed field, you get an entry 
                                // in this object with detailed information about it
 
@@ -241,7 +241,7 @@ type State = {
         }
     };
     value: FormData; // Get the input data as an object
-	setValue: (value: FormData) => void; // Update the whole form state at once
+    setValue: (value: FormData) => void; // Update the whole form state at once
     reset: () => void; // Reset the form to the initial values
 
     valid: boolean; // If the form passed all Validators

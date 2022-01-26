@@ -33,12 +33,10 @@ import { getErrorProps } from './validators';
  * </>
  * ```
  * @param  {FormControlHookInputType<T>} input the form data with its validators
- * @param  {React.DependencyList} dependencies optional list of dependencies
  * @returns {FormControlHookReturnType<T>} the form data with its errors and meta information
  */
 export const useFormControl = <T>(
-	input: FormControlHookInputType<T>,
-	dependencies?: React.DependencyList
+	input: FormControlHookInputType<T>
 ): FormControlHookReturnType<T> => {
 	// Map to internal state and save it
 	// Keep a copy of the initial internal state (used for reset)

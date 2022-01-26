@@ -1,6 +1,5 @@
 node_modules
 dist
 coverage
-.drone.yml
 tsconfig.json
 **/*.md
