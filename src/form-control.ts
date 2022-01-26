@@ -33,10 +33,12 @@ import { getErrorProps } from './validators';
  * </>
  * ```
  * @param  {FormControlHookInputType<T>} input the form data with its validators
+ * @param  {React.DependencyList} dependencies optional list of dependencies
  * @returns {FormControlHookReturnType<T>} the form data with its errors and meta information
  */
 export const useFormControl = <T>(
-	input: FormControlHookInputType<T>
+	input: FormControlHookInputType<T>,
+	dependencies?: React.DependencyList
 ): FormControlHookReturnType<T> => {
 	// Map to internal state and save it
 	// Keep a copy of the initial internal state (used for reset)
@@ -75,14 +77,17 @@ export const useFormControl = <T>(
 		touched,
 	});
 
-	// Only update output ref when state changes
+	// Only update output ref when state changes, or dependencies change
 	// -> important so that hooks that depend on the output don't re-render
 	const outputRef = useRef<FormControlHookReturnType<T>>(buildOutput());
 	const stateRef = useRef<InternalState<T>>(state);
+	const depsChangedRef = useRef<{}>({});
+	const depsChanged = useMemo(() => ({}), dependencies);
 
-	if (state !== stateRef.current) {
+	if (state !== stateRef.current || depsChanged !== depsChangedRef.current) {
 		outputRef.current = buildOutput();
 		stateRef.current = state;
+		depsChangedRef.current = depsChanged;
 	}
 
 	return outputRef.current;

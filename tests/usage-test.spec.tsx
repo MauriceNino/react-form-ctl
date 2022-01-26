@@ -425,4 +425,46 @@ describe('usage-tests', () => {
 
 		expect(wrapper.find('#name-out')).to.have.text('Mauz');
 	});
+
+	const ConditionalValidatorTestApp = () => {
+		const [isSwitch, setIsSwitch] = useState(false);
+		const { controls } = useFormControl<{ name: string }>(
+			{
+				name: ['', [Validators.if(() => isSwitch, [Validators.required])]],
+			},
+			[isSwitch]
+		);
+
+		return (
+			<>
+				<input
+					id='name-inp'
+					type='text'
+					value={controls.name.value}
+					onChange={e => controls.name.setValue(e.target.value)}
+					onBlur={() => controls.name.markTouched()}
+				/>
+				<div id='name-out'>{controls.name.value}</div>
+				<div id='name-sw'>{isSwitch ? 'true' : 'false'}</div>
+				<div id='name-error'>{controls.name.error?.name ?? ''}</div>
+				<button id='set-switch' onClick={() => setIsSwitch(true)}></button>
+			</>
+		);
+	};
+
+	it('validate state changes using conditional validators', () => {
+		const wrapper = shallow(<ConditionalValidatorTestApp />);
+		const nameInp = wrapper.find('#name-inp');
+
+		expect(wrapper.find('#name-out')).to.have.text('');
+		expect(wrapper.find('#name-sw')).to.have.text('false');
+		expect(wrapper.find('#name-error')).to.have.text('');
+
+		const btn = wrapper.find('#set-switch');
+		btn.simulate('click', {});
+
+		expect(wrapper.find('#name-out')).to.have.text('');
+		expect(wrapper.find('#name-sw')).to.have.text('true');
+		expect(wrapper.find('#name-error')).to.have.text('required');
+	});
 });

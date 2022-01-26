@@ -20,8 +20,6 @@ export const Validators = {
 				got: value,
 			};
 		}
-
-		return null;
 	},
 
 	/**
@@ -34,8 +32,6 @@ export const Validators = {
 				got: value,
 			};
 		}
-
-		return null;
 	},
 
 	/**
@@ -53,8 +49,6 @@ export const Validators = {
 					expectedLength: length,
 				};
 			}
-
-			return null;
 		};
 	},
 
@@ -73,8 +67,6 @@ export const Validators = {
 					expectedLength: length,
 				};
 			}
-
-			return null;
 		};
 	},
 
@@ -88,8 +80,6 @@ export const Validators = {
 				got: value,
 			};
 		}
-
-		return null;
 	},
 
 	/**
@@ -106,8 +96,6 @@ export const Validators = {
 					expected: min,
 				};
 			}
-
-			return null;
 		};
 	},
 
@@ -125,8 +113,6 @@ export const Validators = {
 					expected: max,
 				};
 			}
-
-			return null;
 		};
 	},
 
@@ -135,7 +121,7 @@ export const Validators = {
 	 *
 	 * @param  {RegExp} pattern the regex pattern to match
 	 */
-	pattern: (pattern: RegExp) => {
+	regex: (pattern: RegExp) => {
 		return (value: string) => {
 			const match = value.match(pattern);
 			if (!(match && value === match[0])) {
@@ -144,36 +130,61 @@ export const Validators = {
 					got: value,
 				};
 			}
-
-			return null;
 		};
 	},
 
+	// Helpers
+
 	/**
-	 * Validate that a forms string value matches the given regex.
-	 * Is a overload for the {@link Validators.pattern} validator.
+	 * A helper function that creates a validator that only runs if a condition is fulfilled.
 	 *
-	 * @param  {RegExp} pattern the regex pattern to match
+	 * Note that any variable used in the condition must also be provided in the dependency array of
+	 * the useFormControl Hook, otherwise it wont update on changes.
+	 *
+	 * @example
+	 * ```ts
+	 * const loggedIn = ...;
+	 *
+	 * const {controls} = useFormControl<FormData>({
+	 *   name: ['John', [
+	 *     Validators.if(() => loggedIn, [Validators.required, Validators.minLength(3)])
+	 *   ],
+	 *   // ...
+	 * }, [loggedIn]);
+	 * ```
+	 *
+	 * @param  {Function} condition the condition (must return a boolean)
+	 * @param  {ValidatorType<V,T>} validator the validator (typically an arrow function)
+	 * @typeParam V Type of the given form value (e.g string, number, ...)
+	 * @typeParam T Type of the form (e.g your input type)
 	 */
-	regex: (pattern: RegExp) => {
-		return Validators.pattern(pattern);
+	if: <V, T = any>(
+		condition: (value: V, internalState: InternalState<T>) => boolean,
+		validators: ValidatorType<V, T>[]
+	) => {
+		return Validators.create<V, T>((value, internalState) => {
+			if (condition(value, internalState)) {
+				let error: OutputErrorType | undefined = undefined;
+
+				validators.some(v => (error = v(value, internalState)) !== undefined);
+
+				return error;
+			}
+		});
 	},
 
-	// Helpers
 	/**
 	 * A helper function that creates type safe validators for the further usage in your forms.
 	 *
 	 * @example
 	 * ```ts
-	 * const passwordRepeatMatches = Validators.create<string, FormData>((passwordRepeat, state) => {
+	 * const passwordRepeatMatches = Validators.create((passwordRepeat: string, state: InternalState<FormData>) => {
 	 *   if (passwordRepeat !== state.password.value) {
 	 *     return {
 	 *       name: 'passwordRepeatMatches',
 	 *     	 expected: passwordRepeat
 	 *     };
 	 *   }
-	 *
-	 *   return null;
 	 * });
 	 * ```
 	 *
@@ -190,28 +201,23 @@ export const Validators = {
 	 *
 	 * @example
 	 * ```ts
-	 * const isExactAge = Validators.createParametrized<number, number, FormData>((age) => {
-	 *   return (value) => {
+	 * const isExactAge = Validators.createParametrized((age: number) =>
+	 *   Validators.create((value: number) => {
 	 *     if (value !== age) {
 	 *       return {
 	 *         name: 'isExactAge',
 	 *         expected: age
 	 *       };
 	 *     }
-	 *
-	 *     return null;
-	 *   };
-	 * });
+	 *   }));
 	 * ```
 	 *
-	 * @param  {ValidatorType<V,T>} validator the validator (typically an arrow function)
+	 * @param  {ValidatorType<V,T>} validator the validator (typically a result of Validators.create(...))
 	 * @typeParam P Type of the parameter value (e.g string, number, ...)
 	 * @typeParam V Type of the given form value (e.g string, number, ...)
 	 * @typeParam T Type of the form (e.g your input type)
 	 */
-	createParametrized: <P, V, T = any>(
-		validator: (value: P) => ValidatorType<V, T>
-	) => {
+	createParametrized: <P>(validator: (value: P) => ValidatorType) => {
 		return validator;
 	},
 };

@@ -1,31 +1,55 @@
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
-[![npm version](https://img.shields.io/npm/v/react-form-ctl.svg?style=flat)](https://www.npmjs.com/package/react-form-ctl)
-[![Build Status](https://drone.mauz.io/api/badges/MauriceNino/react-form-ctl/status.svg)](https://drone.mauz.io/MauriceNino/react-form-ctl)
 
-# React Form Ctl
+<!-- markdownlint-disable -->
+<h1 align="center">React Form Ctl</h1>
+<div align="center">
+  <a href="LICENSE.md" target="_blank">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
+  </a>
+  <a href="https://www.npmjs.com/package/react-form-ctl" target="_blank">
+    <img src="https://img.shields.io/npm/v/react-form-ctl.svg?style=flat" alt="npm version">
+  </a>
+  <a href="https://drone.mauz.io/MauriceNino/react-form-ctl" target="_blank">
+    <img src="https://drone.mauz.io/api/badges/MauriceNino/react-form-ctl/status.svg" alt="Build Status">
+  </a>
+</div>
 
-React Form Ctl is a **simple** and **type-safe** way to handle form values and validation with both React and React Native. 
-It is inspired by Angulars `FormControl` and/or `FormBuilder`.
+<br/>
 
-- Demo: [Click Here to get to the CodeSandbox](https://codesandbox.io/s/keen-wind-ipdmb?file=/src/App.tsx)
+<p align="center">
+    React Form Ctl is a <b>simple</b> and <b>type-safe</b> way to handle form values and validation with both React and React Native. 
+    <br/>
+    It is inspired by Angulars <code>FormControl</code> and/or <code>FormBuilder</code>
+    </br>
+    </br>
+    You can view a live demo of it using <a href="https://codesandbox.io/s/keen-wind-ipdmb?file=/src/App.tsx">this CodeSandbox link</a>
+</p>
+
+# 
+<!-- markdownlint-enable -->
 
 ## Why use react-form-ctl?
 
 - No runtime dependencies, only requires React as a peer dependency
 - Fully type-safe
 - Localization ready (i18n)
-- Simple API that will be familiar to Angular developers and easy to learn for React developers
+- Simple API that will be familiar to Angular developers and easy to learn for
+React developers
 - All state handling is done for you
 
 ## Installation
 
-```cli
-> npm install react-form-ctl
+```sh
+npm install react-form-ctl
+
+# or
+
+yarn add react-form-ctl
 ```
 
 ## Basic Usage
 
-A quick example can be as easy as implementing a hook with some initial data and spreading the given properties onto a input element:
+A quick example can be as easy as implementing a hook with some initial data and
+spreading the given properties onto a input element:
 
 ```tsx
 import {useFormControl} from 'react-form-ctl';
@@ -54,7 +78,8 @@ There are a number of input helpers available:
 - `rnInputProps` -> for React Native `TextInput`s
 - `rnNumberInputProps` -> for React Native `TextInput`s of type number
 
-Although if you want more granular control, you can do all the state changing by yourself, using the exposed properties:
+Although if you want more granular control, you can do all the state changing by
+yourself, using the exposed properties:
 
 ```tsx
 import {useFormControl, Validators} from 'react-form-ctl';
@@ -79,7 +104,10 @@ return <>
 
 ## Error Handling
 
-In case you want to write a more specific error message for different errors, it is recommended to supply a Map with your error messages like in the following example. Note that this will only be applied to the first error supplied by the first failing Validator.
+In case you want to write a more specific error message for different errors, it
+is recommended to supply a Map with your error messages like in the following
+example. Note that this will only be applied to the first error supplied by the
+first failing Validator.
 
 This Error-Map is also a good chance to bring your localized form data in.
 
@@ -109,7 +137,8 @@ return <>
 </>
 ```
 
-Alternatively, you can also get all errors manually and implement your own error handling like so:
+Alternatively, you can also get all errors manually and implement your own error
+handling like so:
 
 ```tsx
 import {useFormControl, Validators} from 'react-form-ctl';
@@ -142,80 +171,82 @@ There are a number of Validators already included:
 - numeric
 - min
 - max
-- pattern
-- regex (=> alias for pattern)
+- regex
+- if (can execute validators based on a condition)
 
-If you need more validation types (email, phone number, ...), we recommend using the [Validator.js](https://github.com/validatorjs/validator.js) library. 
+If you need more validation types (email, phone number, ...), we recommend using
+the [Validator.js](https://github.com/validatorjs/validator.js) library.
 Check their documentation for more information about the available validators.
 
-```cli
-> npm i validator && npm i -D @types/validator
+```sh
+npm i validator && npm i -D @types/validator
+
+# or
+
+yarn add validator && yarn add -D @types/validator
 ```
 
 You can then implement your own validators and pass them to the Validators array:
 
 ```tsx
-import {useFormControl, Validators} from 'react-form-ctl';
+import {useFormControl, Validators, InternalState} from 'react-form-ctl';
 import isEmail from 'validator/lib/isEmail';
 
 // A simple custom validator
-const nameNotBlacklisted = Validators.create<any>(value => {
+const nameNotBlacklisted = Validators.create((value: string) => {
     if(['Max', 'Anna'].includes(value)) {
         return {
             name: 'nameNotBlacklisted',
             found: value
         };
     }
-
-    return null;
 });
 
 // You can also create parametrized custom validators
-const isExactAge = Validators.createParametrized<number, number>(age => {
-    return value => {
+const isExactAge = Validators.createParametrized((age: number) => {
+    return Validators.create((value: number) => {
         if (value !== age) {
             return {
                 name: 'isExactAge',
                 expected: age
             };
         }
-
-        return null;
-    };
+    });
 });
 
 // You can also check against other form values in your validator
-const passwordRepeatMatches = Validators.create<string, FormData>((passwordRepeat, state) => {
-    if (passwordRepeat !== state.password.value) {
-        return {
-            name: 'passwordRepeatMatches',
-            expected: passwordRepeat
-        };
-    }
-
-    return null;
-});
+const passwordRepeatMatches = Validators.create(
+    (passwordRepeat: string, state: InternalState<FormData>) => {
+        if (passwordRepeat !== state.password.value) {
+            return {
+                name: 'passwordRepeatMatches',
+                expected: passwordRepeat
+            };
+        }
+    });
 
 // You can use the Validator.js library to write your own custom validators
-const validateEmail = Validators.create<string>(email => {
+const validateEmail = Validators.create((email: string) => {
     if (!isEmail(email)) {
         return {
             name: 'validateEmail',
         };
     }
-
-    return null;
 });
+
+// You can use the "if" Validator to create conditional Validators
+const isSomethingTrue = ...;
+const requiredIfCondition = Validators.if(() => isSomethingTrue, [Validators.required])
 
 // Then use them like other validators inside your Validators array
 const {controls} = useFormControl<FormData>({
     name: ['John', [nameNotBlacklisted]],
-    age: [21, [isExactAge(42)]],
+    age: [21, [isExactAge(42), requiredIfCondition]],
     password: [''],
     passwordRepeat: ['', [passwordRepeatMatches]],
     email: ['test@example.com', [validateEmail]]
     // ...
-});
+}, [isSomethingTrue]); // Needs to pass dependency array, because of the "if" validator
 
 // Don't forget to also write custom error handlers if you want
 const errorMap: ErrorMappings = {
@@ -229,7 +260,8 @@ const errorMap: ErrorMappings = {
 
 ## API Reference
 
-You will get back an object containing information about the general state of the form and also a more detailed information about each form field:
+You will get back an object containing information about the general state of
+the form and also a more detailed information about each form field:
 
 ```ts
 type State = {
@@ -283,18 +315,22 @@ type FieldState = {
 }
 ```
 
-**dirty vs touched**
+## dirty vs touched
 
 Dirty means that the value of a property has updated once.
-Touched means that the value of a property was tried to be updated once, but not necessarily has been.
+Touched means that the input element has been focused once.
 
-A common use-case for those properties is error-handling. An error for a value should mostly only be shown, if the value is invalid AND was already changed once, or the input field has been focused and unfocused again. To implement this, you would have to write:
+A common use-case for those properties is error-handling. An error for a value
+should mostly only be shown, if the value is invalid AND was already changed
+once, or the input field has been focused and unfocused again. To implement this,
+you would have to write:
 
 ```ts
 if (somefield.invalid && (somefield.touched || somefield.dirty)) { /* ... */ }
 ```
 
-Because this is so common, react-form-ctl has implemented a little shortcut for that:
+Because this is so common, `react-form-ctl` has implemented a small shortcut for
+that:
 
 ```ts
 if (somefield.invalid && somefield.touchedOrDirty) { /* ... */ }

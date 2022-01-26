@@ -7,7 +7,7 @@ import { InternalState } from './state';
 export type ValidatorType<V = any, T = any> = (
 	value: V,
 	internalState: InternalState<T>
-) => OutputErrorType | null;
+) => OutputErrorType | undefined;
 
 /**
  * The return type of a Validator in case of an error.
@@ -37,7 +37,7 @@ export type OutputErrorsMapType = {
  */
 type ValidatorsMapType = Omit<
 	typeof Validators,
-	'create' | 'createParametrized'
+	'create' | 'createParametrized' | 'if'
 >;
 
 /**
