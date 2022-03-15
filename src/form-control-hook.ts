@@ -2,6 +2,7 @@ import {
 	Dispatch,
 	SetStateAction,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -83,12 +84,16 @@ const useOutputState = <T extends object>(
 	setState: Dispatch<SetStateAction<InternalState<T>>>,
 	dependencies?: React.DependencyList
 ) => {
+	const prevControls = useRef<FormControlHookReturnType<T>['controls']>();
 	const controls = useMemo(
-		() => getDetailedFormData(input, state, setState),
+		() => getDetailedFormData(input, prevControls.current, state, setState),
 		// Disabled, because it cant statically verify the dependencies
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[setState, state, ...(dependencies ?? [])]
 	);
+	useEffect(() => {
+		prevControls.current = controls;
+	}, [controls]);
 
 	const { valid, dirty, touched } = useMemo(
 		() => getGlobalState(controls),

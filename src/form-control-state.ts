@@ -33,14 +33,16 @@ export const getGlobalState = <T extends object>(
  */
 export const getDetailedFormData = <T extends object>(
 	input: FormControlHookInputType<T>,
+	prevControls: FormControlHookReturnType<T>['controls'] | undefined,
 	state: InternalState<T>,
 	setState: Dispatch<SetStateAction<InternalState<T>>>
 ) => {
 	const output: Partial<FormControlHookReturnType<T>['controls']> = {};
 
-	for (const key in input) {
-		const [, validators] = input[key];
+	for (const key in state) {
 		const { value, dirty, touched } = state[key];
+		const [, validators] = input[key];
+		const prevControl = prevControls?.[key];
 
 		const { errors, errorsMap, hasErrors } = getErrorProps(
 			value,
@@ -48,124 +50,136 @@ export const getDetailedFormData = <T extends object>(
 			state
 		);
 
-		const setValue = (v: typeof value) => {
-			setState(oldState => ({
-				...oldState,
-				[key]: {
-					value: v,
-					dirty: oldState[key].value !== v,
-					touched: true,
-				},
-			}));
-		};
+		if (
+			prevControl &&
+			prevControl.value === value &&
+			prevControl.dirty === dirty &&
+			prevControl.touched === touched &&
+			// No errors exist on both current and previous state
+			prevControl.valid === true &&
+			!hasErrors
+		) {
+			output[key] = prevControl;
+		} else {
+			const setValue = (v: typeof value) => {
+				setState(oldState => ({
+					...oldState,
+					[key]: {
+						value: v,
+						dirty: oldState[key].value !== v,
+						touched: true,
+					},
+				}));
+			};
 
-		const resetValue = (v: typeof value) => {
-			setState(oldState => ({
-				...oldState,
-				[key]: {
-					value: v,
-					dirty: false,
-					touched: false,
-				},
-			}));
-		};
+			const resetValue = (v: typeof value) => {
+				setState(oldState => ({
+					...oldState,
+					[key]: {
+						value: v,
+						dirty: false,
+						touched: false,
+					},
+				}));
+			};
 
-		const markDirty = (value = true) => {
-			setState(oldState => ({
-				...oldState,
-				[key]: {
-					...oldState[key],
-					dirty: value,
-				},
-			}));
-		};
-		const markTouched = (value = true) => {
-			setState(oldState => ({
-				...oldState,
-				[key]: {
-					...oldState[key],
-					touched: value,
-				},
-			}));
-		};
+			const markDirty = (value = true) => {
+				setState(oldState => ({
+					...oldState,
+					[key]: {
+						...oldState[key],
+						dirty: value,
+					},
+				}));
+			};
+			const markTouched = (value = true) => {
+				setState(oldState => ({
+					...oldState,
+					[key]: {
+						...oldState[key],
+						touched: value,
+					},
+				}));
+			};
 
-		const setNumberValue = (input: string) => {
-			const numInput = +input;
-			if (input === '') {
-				setValue(null as typeof value);
-			} else if (!isNaN(numInput)) {
-				setValue(numInput as typeof value);
-			} else {
-				markTouched();
-			}
-		};
+			const setNumberValue = (input: string) => {
+				const numInput = +input;
+				if (input === '') {
+					setValue(null as typeof value);
+				} else if (!isNaN(numInput)) {
+					setValue(numInput as typeof value);
+				} else {
+					markTouched();
+				}
+			};
 
-		const outputValues: FormControlState<T[Extract<keyof T, string>]> = {
-			value,
-			setValue,
-			resetValue,
-
-			valid: !hasErrors,
-			invalid: hasErrors,
-
-			dirty,
-			markDirty,
-			touched,
-			markTouched,
-			touchedOrDirty: dirty || touched,
-
-			error: hasErrors ? errors[0] : undefined,
-			errors: hasErrors ? errorsMap : undefined,
-		};
-
-		// Lint & Typescript ignored, because we need to append the helpers either way
-		// If they are dependent on the input type, we can never be 100% sure which type they are
-		const outputHelpers: FormControlHelpers<T[Extract<keyof T, string>]> = {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			inputProps: () => ({
+			const outputValues: FormControlState<T[Extract<keyof T, string>]> = {
 				value,
-				onChange: e => setValue(e.target.value as unknown as typeof value),
-				onBlur: () => markTouched(),
-			}),
+				setValue,
+				resetValue,
 
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			numberInputProps: () => ({
-				value: value == null ? '' : value,
-				onChange: e => setNumberValue(e.target.value),
-				onBlur: () => markTouched(),
-			}),
+				valid: !hasErrors,
+				invalid: hasErrors,
 
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			checkboxProps: () => ({
-				checked: value,
-				onChange: () => setValue(!value as unknown as typeof value),
-				onBlur: () => markTouched(),
-			}),
+				dirty,
+				markDirty,
+				touched,
+				markTouched,
+				touchedOrDirty: dirty || touched,
 
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			rnInputProps: () => ({
-				value,
-				onChangeText: e => setValue(e as unknown as typeof value),
-				onBlur: () => markTouched(),
-			}),
+				error: hasErrors ? errors[0] : undefined,
+				errors: hasErrors ? errorsMap : undefined,
+			};
 
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			rnNumberInputProps: () => ({
-				value: value == null ? '' : '' + value,
-				onChangeText: e => setNumberValue(e),
-				onBlur: () => markTouched(),
-			}),
-		};
+			// Lint & Typescript ignored, because we need to append the helpers either way
+			// If they are dependent on the input type, we can never be 100% sure which type they are
+			const outputHelpers: FormControlHelpers<T[Extract<keyof T, string>]> = {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				inputProps: () => ({
+					value,
+					onChange: e => setValue(e.target.value as unknown as typeof value),
+					onBlur: () => markTouched(),
+				}),
 
-		output[key] = {
-			...outputValues,
-			...outputHelpers,
-		};
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				numberInputProps: () => ({
+					value: value == null ? '' : value,
+					onChange: e => setNumberValue(e.target.value),
+					onBlur: () => markTouched(),
+				}),
+
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				checkboxProps: () => ({
+					checked: value,
+					onChange: () => setValue(!value as unknown as typeof value),
+					onBlur: () => markTouched(),
+				}),
+
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				rnInputProps: () => ({
+					value,
+					onChangeText: e => setValue(e as unknown as typeof value),
+					onBlur: () => markTouched(),
+				}),
+
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				rnNumberInputProps: () => ({
+					value: value == null ? '' : '' + value,
+					onChangeText: e => setNumberValue(e),
+					onBlur: () => markTouched(),
+				}),
+			};
+
+			output[key] = {
+				...outputValues,
+				...outputHelpers,
+			};
+		}
 	}
 
 	return output as FormControlHookReturnType<T>['controls'];

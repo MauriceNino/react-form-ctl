@@ -49,9 +49,17 @@ describe('form-control', () => {
 	describe('#getGlobalFormData', () => {
 		it('should get FormData from Basic internal state', () => {
 			const formData = getGlobalFormData({
-				name: { value: 'Maurice', dirty: false, touched: false },
+				name: {
+					value: 'Maurice',
+					dirty: false,
+					touched: false,
+				},
 				age: { value: 22, dirty: false, touched: false },
-				isOldEnough: { value: true, dirty: false, touched: false },
+				isOldEnough: {
+					value: true,
+					dirty: false,
+					touched: false,
+				},
 			});
 
 			expect(formData).to.contain.all.keys('name', 'age', 'isOldEnough');
@@ -69,13 +77,22 @@ describe('form-control', () => {
 				isOldEnough: [true],
 			};
 			const internalState: InternalState<TestFormData> = {
-				name: { value: 'Maurice', dirty: false, touched: false },
+				name: {
+					value: 'Maurice',
+					dirty: false,
+					touched: false,
+				},
 				age: { value: 22, dirty: false, touched: false },
-				isOldEnough: { value: true, dirty: false, touched: false },
+				isOldEnough: {
+					value: true,
+					dirty: false,
+					touched: false,
+				},
 			};
 
 			const detailedFormData = getDetailedFormData(
 				hookInput,
+				undefined,
 				internalState,
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				() => {}
@@ -111,13 +128,22 @@ describe('form-control', () => {
 				isOldEnough: [true],
 			};
 			const internalState: InternalState<TestFormData> = {
-				name: { value: 'Maurice', dirty: false, touched: false },
+				name: {
+					value: 'Maurice',
+					dirty: false,
+					touched: false,
+				},
 				age: { value: 22, dirty: false, touched: false },
-				isOldEnough: { value: true, dirty: false, touched: false },
+				isOldEnough: {
+					value: true,
+					dirty: false,
+					touched: false,
+				},
 			};
 
 			const detailedFormData = getDetailedFormData(
 				hookInput,
+				undefined,
 				internalState,
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				() => {}
