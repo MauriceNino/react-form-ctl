@@ -1,4 +1,4 @@
-export { useFormControl } from './form-control';
+export { useFormControl } from './form-control-hook';
 export { ErrorMappings, ValidatorType } from './types/error-handling';
 export {
 	FormControl,

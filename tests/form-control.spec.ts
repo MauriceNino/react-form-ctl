@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import rewire from 'rewire';
 import {
-	FormControlHookInputType,
-	FormControlHookReturnType,
-	InternalState,
-} from '../src/types/state';
-const formControlModule = rewire('../dist/form-control');
+	getDetailedFormData,
+	getGlobalFormData,
+	getInternalState,
+	getInternalStateFromFormData,
+} from '../src/form-control-state';
+import { FormControlHookInputType, InternalState } from '../src/types/state';
 
 type TestFormData = {
 	name: string;
@@ -14,12 +14,6 @@ type TestFormData = {
 };
 
 describe('form-control', () => {
-	type GetInternalState<T> = (
-		input: FormControlHookInputType<T>
-	) => InternalState<T>;
-	const getInternalState: GetInternalState<TestFormData> =
-		formControlModule.__get__('getInternalState');
-
 	describe('#getInternalState', () => {
 		it('should get Basic internal state', () => {
 			const internalState = getInternalState({
@@ -35,10 +29,6 @@ describe('form-control', () => {
 			expect(internalState.isOldEnough.value).to.equal(true);
 		});
 	});
-
-	type GetInternalStateFromFormData<T> = (input: T) => InternalState<T>;
-	const getInternalStateFromFormData: GetInternalStateFromFormData<TestFormData> =
-		formControlModule.__get__('getInternalStateFromFormData');
 
 	describe('#getInternalStateFromFormData', () => {
 		it('should get Basic internal state', () => {
@@ -56,10 +46,6 @@ describe('form-control', () => {
 		});
 	});
 
-	type GetGlobalFormData<T> = (input: InternalState<T>) => T;
-	const getGlobalFormData: GetGlobalFormData<TestFormData> =
-		formControlModule.__get__('getGlobalFormData');
-
 	describe('#getGlobalFormData', () => {
 		it('should get FormData from Basic internal state', () => {
 			const formData = getGlobalFormData({
@@ -74,16 +60,6 @@ describe('form-control', () => {
 			expect(formData.isOldEnough).to.equal(true);
 		});
 	});
-
-	type GetDetailedFormData<T> = (
-		input: FormControlHookInputType<T>,
-		state: InternalState<T>,
-		setState: (
-			updateFunc: (value: InternalState<T>) => InternalState<T>
-		) => void
-	) => FormControlHookReturnType<T>['controls'];
-	const getDetailedFormData: GetDetailedFormData<TestFormData> =
-		formControlModule.__get__('getDetailedFormData');
 
 	describe('#getDetailedFormData', () => {
 		it('should get output data from internal state and input', () => {
@@ -101,6 +77,7 @@ describe('form-control', () => {
 			const detailedFormData = getDetailedFormData(
 				hookInput,
 				internalState,
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				() => {}
 			);
 
@@ -142,6 +119,7 @@ describe('form-control', () => {
 			const detailedFormData = getDetailedFormData(
 				hookInput,
 				internalState,
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				() => {}
 			);
 

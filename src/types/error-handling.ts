@@ -4,7 +4,7 @@ import { InternalState } from './state';
 /**
  * Type of a validator (with its optional parameters already resolved)
  */
-export type ValidatorType<V = any, T = any> = (
+export type ValidatorType<V = unknown, T = unknown> = (
 	value: V,
 	internalState: InternalState<T>
 ) => OutputErrorType | undefined;
@@ -17,9 +17,9 @@ export type ValidatorType<V = any, T = any> = (
  */
 export type OutputErrorType = {
 	name: keyof ValidatorsMapType | string;
-	got?: any;
-	expected?: any;
-	[prop: string]: any;
+	got?: unknown;
+	expected?: unknown;
+	[prop: string]: unknown;
 };
 
 /**
@@ -28,7 +28,7 @@ export type OutputErrorType = {
  */
 export type OutputErrorsMapType = {
 	[prop in keyof ValidatorsMapType | string]: {
-		[prop: string]: any;
+		[prop: string]: unknown;
 	};
 };
 
@@ -67,7 +67,9 @@ export type ErrorMappings = {
 		values: NonNullable<ReturnType<ValidatorsMapType[errorName]>>
 	) => string;
 } & {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	default?: (values: any) => string;
 } & {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	[prop: string]: (values: any) => string;
 };

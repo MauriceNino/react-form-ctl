@@ -3,7 +3,7 @@ import chaiEnzyme from 'chai-enzyme';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import React, { useEffect, useState } from 'react';
-import { useFormControl } from '../src/form-control';
+import { useFormControl } from '../src/form-control-hook';
 import { ErrorMappings } from '../src/types/error-handling';
 import { FormControlHookInputType } from '../src/types/state';
 import { extError, Validators } from '../src/validators';
@@ -98,7 +98,7 @@ describe('usage-tests', () => {
 					id='isOldEnough-inp'
 					type='checkbox'
 					checked={form.controls.isOldEnough.value}
-					onChange={e =>
+					onChange={() =>
 						form.controls.isOldEnough.setValue(!form.controls.isOldEnough.value)
 					}
 				/>
@@ -454,7 +454,6 @@ describe('usage-tests', () => {
 
 	it('validate state changes using conditional validators', () => {
 		const wrapper = shallow(<ConditionalValidatorTestApp />);
-		const nameInp = wrapper.find('#name-inp');
 
 		expect(wrapper.find('#name-out')).to.have.text('');
 		expect(wrapper.find('#name-sw')).to.have.text('false');

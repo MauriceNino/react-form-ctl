@@ -3,7 +3,7 @@ import {
 	OutputErrorType,
 	ValidatorType,
 } from './error-handling';
-import { PartialNumberNull } from './utility';
+import { NumberNullable, PartialNumberNull } from './utility';
 
 /**
  * The input type of the hook
@@ -13,12 +13,12 @@ export type FormControlHookInputType<T> = {
 		/**
 		 * The default value of the form field
 		 */
-		T[key] extends number ? T[key] | null : T[key],
+		NumberNullable<T[key]>,
 
 		/**
 		 * An optional list of validators for the form field
 		 */
-		ValidatorType<T[key], T>[]?
+		ValidatorType<NumberNullable<T[key]>, T>[]?
 	];
 };
 
@@ -54,12 +54,12 @@ export type FormControlState<T> = {
 	/**
 	 * The current value of a form control
 	 */
-	value: T extends number ? T | null : T;
+	value: NumberNullable<T>;
 
 	/**
 	 * Set the value of a form control
 	 */
-	setValue: (value: T) => void;
+	setValue: (value: NumberNullable<T>) => void;
 
 	/**
 	 * Set the value of a form control and simultaneously set:
@@ -67,7 +67,7 @@ export type FormControlState<T> = {
 	 * - touched = false
 	 * - dirty = false
 	 */
-	resetValue: (value: T) => void;
+	resetValue: (value: NumberNullable<T>) => void;
 
 	/**
 	 * If the current value of the control is valid
@@ -180,7 +180,7 @@ export type FormControlHelpers<T> = {
 /**
  * Represents the current state of the form (including errors)
  */
-export type FormControlHookReturnType<T> = {
+export type FormControlHookReturnType<T extends object> = {
 	/**
 	 * Holds information about all given form controls. This information includes:
 	 *
@@ -200,7 +200,7 @@ export type FormControlHookReturnType<T> = {
 	/**
 	 * Set the value of the form
 	 */
-	setValue: (value: T) => void;
+	setValue: (value: PartialNumberNull<T>) => void;
 
 	/**
 	 * Resets the form to the initially passed values
@@ -229,7 +229,7 @@ export type FormControlHookReturnType<T> = {
 
 export type InternalState<T> = {
 	[key in keyof T]: {
-		value: T[key] extends number ? T[key] | null : T[key];
+		value: NumberNullable<T[key]>;
 		dirty: boolean;
 		touched: boolean;
 	};

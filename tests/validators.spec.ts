@@ -123,7 +123,7 @@ describe('validators', () => {
 		});
 
 		it('should work with custom validator', () => {
-			const isTest: ValidatorType = (value: string) => {
+			const isTest: ValidatorType<string> = value => {
 				if (value !== 'TEST') {
 					return {
 						name: 'isTest',
@@ -140,8 +140,8 @@ describe('validators', () => {
 
 		it('should work with custom parametrized validator', () => {
 			const is =
-				(isVal: string): ValidatorType =>
-				(value: string) => {
+				(isVal: string): ValidatorType<string> =>
+				value => {
 					if (value !== isVal) {
 						return {
 							name: 'is',

@@ -13,7 +13,7 @@ export const Validators = {
 	/**
 	 * Validate that a form value is present (not null/undefined, not empty string, not false).
 	 */
-	required: (value: any) => {
+	required: (value: unknown) => {
 		if (value == null || value === '' || value === false) {
 			return {
 				name: 'required',
@@ -25,7 +25,7 @@ export const Validators = {
 	/**
 	 * Validate that a form value is exactly the value 'true'.
 	 */
-	requiredTrue: (value: any) => {
+	requiredTrue: (value: unknown) => {
 		if (value !== true) {
 			return {
 				name: 'requiredTrue',
@@ -73,8 +73,8 @@ export const Validators = {
 	/**
 	 * Validate that a form value can be parsed to a number.
 	 */
-	numeric: (value: any) => {
-		if (isNaN(+value)) {
+	numeric: (value: unknown) => {
+		if (!/^-?[\d.]+(?:e-?\d+)?$/.test(value as string)) {
 			return {
 				name: 'numeric',
 				got: value,
@@ -88,8 +88,8 @@ export const Validators = {
 	 * @param  {number} min minimum value
 	 */
 	min: (min: number) => {
-		return (value: number) => {
-			if (value < min) {
+		return (value: number | null) => {
+			if (value === null || value < min) {
 				return {
 					name: 'min',
 					got: value,
@@ -105,8 +105,8 @@ export const Validators = {
 	 * @param  {number} max maximum value
 	 */
 	max: (max: number) => {
-		return (value: number) => {
-			if (value > max) {
+		return (value: number | null) => {
+			if (value === null || value > max) {
 				return {
 					name: 'max',
 					got: value,
@@ -158,7 +158,7 @@ export const Validators = {
 	 * @typeParam V Type of the given form value (e.g string, number, ...)
 	 * @typeParam T Type of the form (e.g your input type)
 	 */
-	if: <V, T = any>(
+	if: <V, T = unknown>(
 		condition: (value: V, internalState: InternalState<T>) => boolean,
 		validators: ValidatorType<V, T>[]
 	) => {
@@ -192,7 +192,7 @@ export const Validators = {
 	 * @typeParam V Type of the given form value (e.g string, number, ...)
 	 * @typeParam T Type of the form (e.g your input type)
 	 */
-	create: <V, T = any>(validator: ValidatorType<V, T>) => {
+	create: <V, T = unknown>(validator: ValidatorType<V, T>) => {
 		return validator;
 	},
 
@@ -217,7 +217,9 @@ export const Validators = {
 	 * @typeParam V Type of the given form value (e.g string, number, ...)
 	 * @typeParam T Type of the form (e.g your input type)
 	 */
-	createParametrized: <P>(validator: (value: P) => ValidatorType) => {
+	createParametrized: <P>(
+		validator: (value: P) => ValidatorType<P, unknown>
+	) => {
 		return validator;
 	},
 };
@@ -256,9 +258,9 @@ export const extError = (
  * @param  {InternalState<T>} internalState
  * @returns error information
  */
-export const getErrorProps = <T>(
-	value: any,
-	validators: ValidatorType<any, T>[] | undefined,
+export const getErrorProps = <T, V>(
+	value: V,
+	validators: ValidatorType<V, T>[] | undefined,
 	internalState: InternalState<T>
 ): {
 	errors: OutputErrorType[];
