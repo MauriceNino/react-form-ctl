@@ -66,7 +66,7 @@ export const getDetailedFormData = <T extends object>(
 					...oldState,
 					[key]: {
 						value: v,
-						dirty: oldState[key].value !== v,
+						dirty: oldState[key].dirty || oldState[key].value !== v,
 						touched: true,
 					},
 				}));
