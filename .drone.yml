@@ -12,6 +12,20 @@ steps:
     image: node:lts-alpine
     commands:
       - npm run test
+  - name: deploy to npm
+    image: plugins/npm
+    when:
+      branch: publish
+    settings:
+      email: mauriceprivat98@gmail.com
+      username: mauricenino
+      password:
+        from_secret: NPM_ACCESS_KEY
+
+---
+kind: secret
+name: NPM_ACCESS_KEY
+data: yAgY1nQbathhkCiwocMeYdMd9w/nkuoNgiBt+WkBvzHjpPBS3lnqYWK+HR1HgEYIZlBG1LB265DPX/sqB7d9ZNc8rxU=
 ---
 kind: signature
-hmac: 93abc1dbef64f9cc5630ab2b7fa66d79395e0daa3bc73eb54019c44e9b805c94
+hmac: 2e0a5b46756a19183e96d3101dc77d60ec03021cf59aec47e0e46ff65e6351d5

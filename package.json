@@ -1,6 +1,6 @@
 {
 	"name": "react-form-ctl",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "A react hook for validating forms and keeping track of state, inspired by Angulars FormControl",
 	"main": "dist/index.js",
 	"files": [
